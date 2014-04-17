@@ -26,7 +26,7 @@ from org.moziapi.uniones.union import Union
 if __name__ == '__main__':
 
     # iniciamos la conexion a la BD
-    oConexion = MySqlUtiles('localhost', '', 'employees', 'root', 'password')
+    oConexion = MySqlUtiles('localhost', '', 'employees', 'root', 'yourpassword')
 
     lResultado = oConexion.lConectar()
 

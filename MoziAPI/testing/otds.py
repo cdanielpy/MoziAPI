@@ -40,15 +40,15 @@ class Employee(OTDBase):
         
         '''
 
-        # invocamos al inicializador de la clase base
-        super(Employee, self).__init__('employees', **parametros)
-
         # valores por defecto para atributos
         self._cNombre = ''
         self._cApellido = ''
         self._cGenero = None
         self._dFechaIngreso = None
         self._dCumpleanos = None
+
+        # invocamos al inicializador de la clase base
+        super(Employee, self).__init__('employees', **parametros)
 
         self._cDescripcion = self._cNombre + ' ' + self._cApellido
 
