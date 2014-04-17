@@ -7,6 +7,9 @@ Created on 11/04/2014
 @summary: Clase para generacion de criterios de Restriccion de resultados 
 '''
 
+#importamos los modulos y clases necesarias
+import datetime
+
 
 class Restriccion(object):
     '''
@@ -15,21 +18,26 @@ class Restriccion(object):
 
     NOMBRE_CLASE = 'Restriccion'
 
-    Y = 'AND'
-    O = 'OR'
+    _Y_ = ' AND '
+    _O_ = ' OR '
 
-    COMO = 'LIKE'
+    _COMO_ = " @%s@ LIKE %s "
 
-    IGUAL = '='
-    MAYOR_QUE = '>'
-    MENOR_QUE = '<'
+    _IGUAL_ = ' @%s@ = %s '
+    _NO_IGUAL_ = ' @%s@ <> %s '
 
-    MAYOR_O_IGUAL_QUE = '>='
-    MENOR_O_IGUAL_QUE = '<='
+    _MAYOR_QUE_ = ' @%s@ > %s '
+    _MENOR_QUE_ = ' @%s@ < %s '
 
-    ENTRE = 'BETWEEN'
+    _MAYOR_O_IGUAL_QUE_ = ' @%s@ >= %s '
+    _MENOR_O_IGUAL_QUE_ = ' @%s@ <= %s '
 
-    def __init__(self, cAtributo, oValor, cOperador):
+    _ENTRE_ = ' @%s@ BETWEEN %s AND %s '
+
+
+    def __init__(self, cAtributo, oValor, cOperador
+                 , bFormatear = True, bModoAtributos = True
+                 ):
         '''
         Inicializador de la clase
         
@@ -37,6 +45,10 @@ class Restriccion(object):
         oValor        = valor del atributo de la clase
         cOperador     = operador logico o de comparacion
         cCondicionSQL = condicion en formato sql
+        bFormatear    = si el valor se formateara de acuerdo a su tipo para
+                        su uso en la sentencia a generar
+        bModoAtributos= si se esta generando los datos a partir de atributos
+                        comparados con valores
         
         '''
 
@@ -46,23 +58,36 @@ class Restriccion(object):
         self.__oValor = oValor
 
         self.__cOperador = cOperador
+        self.__bFormatear = bFormatear
+        self.__bModoAtributos = bModoAtributos
 
-        if cOperador is Restriccion.IGUAL:
-            self.__cCondicionSQL = (" @%s@ = '%s' " if type(oValor) is str else ' @%s@ = %s ') % (cAtributo, oValor)
-            
-        elif cOperador is Restriccion.Y:
-            self.__cCondicionSQL = ' %s AND %s '
-        elif cOperador is Restriccion.O:
-            self.__cCondicionSQL = ' (%s) OR (%s) '
-        elif cOperador is Restriccion.ENTRE:
-            self.__cCondicionSQL = ' @%s@ BETWEEN %s AND %s ' % (cAtributo, oValor[0], oValor[1])
+        if cOperador in [Restriccion._IGUAL_
+                         , Restriccion._NO_IGUAL_
+                         , Restriccion._MENOR_QUE_
+                         , Restriccion._MENOR_O_IGUAL_QUE_
+                         , Restriccion._MAYOR_QUE_
+                         , Restriccion._MAYOR_O_IGUAL_QUE_
+                         , Restriccion._COMO_
+                         ]:
+            self.__cSql = cOperador % (cAtributo
+                                        , self.__formatoValor(oValor)
+                                        )
+
+        elif cOperador in [Restriccion._Y_, Restriccion._O_]:
+            self.__cSql = cOperador
+
+        elif cOperador is Restriccion._ENTRE_:
+            self.__cSql = cOperador % (cAtributo
+                                        , self.__formatoValor(oValor[0])
+                                        , self.__formatoValor(oValor[-1])
+                                        )
 
 
     def __getAtributo(self): return self.__cAtributo
 
     def __getValor(self): return self.__oValor
 
-    def __str__(self): return self.__cCondicionSQL
+    def __str__(self): return self.__cSql
 
 
     atributo = property(fget=__getAtributo, doc='Devuelve el nombre del atributo')
@@ -71,45 +96,282 @@ class Restriccion(object):
 
     def getCondiciones(self, oOTD):
         '''
-        Devuelve la cadena de condiciones en formato SQL con
+        Devuelve la clausula de condiciones en formato SQL con
         los nombres de campos y sus valores
         
         oOTD = instancia de OTDBase de la cual tomar los atributos
         
         '''
 
-        #reemplazamos en la cadena SQL los valores de atributos por sus nombres
-        #de campos de tabla
-        if self.__cOperador in [Restriccion.COMO, Restriccion.IGUAL, Restriccion.ENTRE]:
-            return self.__cCondicionSQL.replace('@' + self.__cAtributo + '@'
-                                            , oOTD._dicAtributos[self.__cAtributo]
+        # reemplazamos en la cadena SQL los valores de atributos por sus nombres
+        # de campos de tabla
+        if self.__cOperador in [Restriccion._COMO_
+                                , Restriccion._IGUAL_
+                                , Restriccion._NO_IGUAL_
+                                , Restriccion._MENOR_QUE_
+                                , Restriccion._MENOR_O_IGUAL_QUE_
+                                , Restriccion._MAYOR_QUE_
+                                , Restriccion._MAYOR_O_IGUAL_QUE_
+                                , Restriccion._ENTRE_
+                                ]:
+
+            if self.__bModoAtributos:
+                self.__cSql = self.__cSql.replace('@' + self.__cAtributo + '@'
+                                            , oOTD.alias + '.' + oOTD._dicAtributos[self.__cAtributo]
                                             )
 
-        elif self.__cOperador in [Restriccion.Y, Restriccion.O]:
-            return self.__cCondicionSQL % (self.__cAtributo.getCondiciones(oOTD)
-                                    , self.__oValor.getCondiciones(oOTD)
-                                    )
+            else:
+                #self.__cSql = ' (' + self.__cOperador % (self.__cAtributo, self.__oValor) + ') '
+                self.__cSql = self.__cOperador % (self.__cAtributo, self.__oValor)
+                self.__cSql = self.__cSql.replace('@' + self.__cAtributo + '@'
+                                                , self.__cAtributo
+                                                )
+
+        elif self.__cOperador in [Restriccion._Y_, Restriccion._O_]:
+
+            if self.__bModoAtributos:
+                self.__cSql = self.__cOperador.join([' (' + r.getCondiciones(oOTD) + ') ' for r in self.__oValor])
+
+            else:
+                #self.__cSql = ' (' + self.__cOperador % (self.__cAtributo, self.__oValor) + ') '
+                self.__cSql = self.__cOperador % (self.__cAtributo, self.__oValor)
+                self.__cSql = self.__cSql.replace('@' + self.__cAtributo + '@'
+                                                , self.__cAtributo
+                                                )
+
+        #devolvemos la condicion pero como sentencia SQL
+        return self.__cSql
 
 
     @staticmethod
-    def Ig(**comparacion):
+    def Ig(*atributos, **comparacion):
         '''
         Devuelve una instancia de Restriccion de tipo de comparacion
-        con operador IGUAL
+        con operador IGUAL (=)
         
-        parametros => atributo = valor a comparar
+        atributos   => tupla con nombres de atributos a comparar
+        comparacion => atributo = valor a comparar
         
         '''
 
-        if(type(comparacion) is not dict):
-            raise Exception(Restriccion.NOMBRE_CLASE + '.Ig'
+        #si es un diccionario con al menos un elemento
+        if type(comparacion) is dict and len(comparacion) > 0:
+            return Restriccion(comparacion.keys()[0]
+                           , comparacion.values()[0]
+                           , Restriccion._IGUAL_
+                           )
+
+        #si es una tupla con al menos dos elementos
+        if type(atributos) is tuple and len(atributos) > 1:
+            return Restriccion(atributos[0]
+                           , atributos[1]
+                           , Restriccion._IGUAL_
+                           , False
+                           , False
+                           )
+
+        #sino
+        raise Exception(Restriccion.NOMBRE_CLASE + '.Ig()'
                             + ': Se debe especificar el atributo y el valor a comparar!'
                             )
 
-        return Restriccion(comparacion.keys()[0]
+
+    @staticmethod
+    def Como(*atributos, **comparacion):
+        '''
+        Devuelve una instancia de Restriccion de tipo de comparacion
+        con operador IGUAL (like)
+        
+        atributos   => tupla con nombres de atributos a comparar
+        comparacion => atributo = valor a comparar
+        
+        '''
+
+        #si es un diccionario con al menos un elemento
+        if type(comparacion) is dict and len(comparacion) > 0:
+            return Restriccion(comparacion.keys()[0]
                            , comparacion.values()[0]
-                           , Restriccion.IGUAL
+                           , Restriccion._COMO_
                            )
+
+        #si es una tupla con al menos dos elementos
+        if type(atributos) is tuple and len(atributos) > 1:
+            return Restriccion(atributos[0]
+                           , atributos[1]
+                           , Restriccion._COMO_
+                           , False
+                           , False
+                           )
+
+        #sino
+        raise Exception(Restriccion.NOMBRE_CLASE + '.Como()'
+                            + ': Se debe especificar el atributo y el valor a comparar!'
+                            )
+
+
+    @staticmethod
+    def Dif(*atributos, **comparacion):
+        '''
+        Devuelve una instancia de Restriccion de tipo de comparacion
+        con operador NO IGUAL (<>)
+        
+        atributos   => tupla con nombres de atributos a comparar
+        comparacion => atributo = valor a comparar
+        
+        '''
+
+        #si es un diccionario con al menos un elemento
+        if type(comparacion) is dict and len(comparacion) > 0:
+            return Restriccion(comparacion.keys()[0]
+                           , comparacion.values()[0]
+                           , Restriccion._NO_IGUAL_
+                           )
+
+        #si es una tupla con al menos dos elementos
+        if type(atributos) is tuple and len(atributos) > 1:
+            return Restriccion(atributos[0]
+                           , atributos[1]
+                           , Restriccion._NO_IGUAL_
+                           , False
+                           , False
+                           )
+
+        #sino
+        raise Exception(Restriccion.NOMBRE_CLASE + '.Dif()'
+                            + ': Se debe especificar el atributo y el valor a comparar!'
+                            )
+
+
+    @staticmethod
+    def May(*atributos, **comparacion):
+        '''
+        Devuelve una instancia de Restriccion de tipo de comparacion
+        con operador MAYOR QUE (>)
+        
+        atributos   => tupla con nombres de atributos a comparar
+        comparacion => atributo = valor a comparar
+        
+        '''
+
+        #si es un diccionario con al menos un elemento
+        if type(comparacion) is dict and len(comparacion) > 0:
+            return Restriccion(comparacion.keys()[0]
+                           , comparacion.values()[0]
+                           , Restriccion._MAYOR_QUE_
+                           )
+
+        #si es una tupla con al menos dos elementos
+        if type(atributos) is tuple and len(atributos) > 1:
+            return Restriccion(atributos[0]
+                           , atributos[1]
+                           , Restriccion._MAYOR_QUE_
+                           , False
+                           , False
+                           )
+
+        #sino
+        raise Exception(Restriccion.NOMBRE_CLASE + '.May()'
+                            + ': Se debe especificar el atributo y el valor a comparar!'
+                            )
+
+
+    @staticmethod
+    def Men(*atributos, **comparacion):
+        '''
+        Devuelve una instancia de Restriccion de tipo de comparacion
+        con operador MENOR QUE (<)
+        
+        atributos   => tupla con nombres de atributos a comparar
+        comparacion => atributo = valor a comparar
+        
+        '''
+
+        #si es un diccionario con al menos un elemento
+        if type(comparacion) is dict and len(comparacion) > 0:
+            return Restriccion(comparacion.keys()[0]
+                           , comparacion.values()[0]
+                           , Restriccion._MENOR_QUE_
+                           )
+
+        #si es una tupla con al menos dos elementos
+        if type(atributos) is tuple and len(atributos) > 1:
+            return Restriccion(atributos[0]
+                           , atributos[1]
+                           , Restriccion._MENOR_QUE_
+                           , False
+                           , False
+                           )
+
+        #sino
+        raise Exception(Restriccion.NOMBRE_CLASE + '.Men()'
+                            + ': Se debe especificar el atributo y el valor a comparar!'
+                            )
+
+    @staticmethod
+    def MayIg(*atributos, **comparacion):
+        '''
+        Devuelve una instancia de Restriccion de tipo de comparacion
+        con operador MAYOR O IGUAL QUE (>=)
+        
+        atributos   => tupla con nombres de atributos a comparar
+        comparacion => atributo = valor a comparar
+        
+        '''
+
+        #si es un diccionario con al menos un elemento
+        if type(comparacion) is dict and len(comparacion) > 0:
+            return Restriccion(comparacion.keys()[0]
+                           , comparacion.values()[0]
+                           , Restriccion._MAYOR_O_IGUAL_QUE_
+                           )
+
+        #si es una tupla con al menos dos elementos
+        if type(atributos) is tuple and len(atributos) > 1:
+            return Restriccion(atributos[0]
+                           , atributos[1]
+                           , Restriccion._MAYOR_O_IGUAL_QUE_
+                           , False
+                           , False
+                           )
+
+        #sino
+        raise Exception(Restriccion.NOMBRE_CLASE + '.MayIg()'
+                            + ': Se debe especificar el atributo y el valor a comparar!'
+                            )
+
+
+    @staticmethod
+    def MenIg(*atributos, **comparacion):
+        '''
+        Devuelve una instancia de Restriccion de tipo de comparacion
+        con operador MENOR O IGUAL QUE (<=)
+        
+        atributos   => tupla con nombres de atributos a comparar
+        comparacion => atributo = valor a comparar
+        
+        '''
+
+        #si es un diccionario con al menos un elemento
+        if type(comparacion) is dict and len(comparacion) > 0:
+            return Restriccion(comparacion.keys()[0]
+                           , comparacion.values()[0]
+                           , Restriccion._MENOR_O_IGUAL_QUE_
+                           )
+
+        #si es una tupla con al menos dos elementos
+        if type(atributos) is tuple and len(atributos) > 1:
+            return Restriccion(atributos[0]
+                           , atributos[1]
+                           , Restriccion._MENOR_O_IGUAL_QUE_
+                           , False
+                           , False
+                           )
+
+        #sino
+        raise Exception(Restriccion.NOMBRE_CLASE + '.MenIg()'
+                            + ': Se debe especificar el atributo y el valor a comparar!'
+                            )
+
 
     @staticmethod
     def Entre(**comparacion):
@@ -117,57 +379,97 @@ class Restriccion(object):
         Devuelve una instancia de Restriccion de tipo de comparacion
         con operador IGUAL
         
-        parametros => atributo = [valorMinimo, valorMaximo] a comparar
+        parametros => atributo = [minimo, maximo] a comparar
         
         '''
 
         if type(comparacion) is not dict \
             or type(comparacion.values().pop()) is not list:
-            raise Exception(Restriccion.NOMBRE_CLASE + '.Entre'
+            raise Exception(Restriccion.NOMBRE_CLASE + '.Entre()'
                             + ': Se debe especificar el atributo y los valores limites!'
                             )
 
         return Restriccion(comparacion.keys().pop()
                            , comparacion.values().pop()
-                           , Restriccion.ENTRE
+                           , Restriccion._ENTRE_
                            )
 
 
     @staticmethod
-    def Y(restriccion_0, restriccion_1):
+    def Y(lRestricciones):
         '''
         Devuelve una instancia de Restriccion de tipo de logico
         con operador Y (and)
         
-        restriccion_0 = instancia de Resctriccion
-        restriccion_1 = instancia de Resctriccion
+        lRestricciones = lista de instancias de Restriccion
+        
+        Ej.
+            [Restriccion.Ig(..), Restriccion.Entre(..), ...] 
         
         '''
 
-        if(type(restriccion_0) is not Restriccion
-           or type(restriccion_1) is not Restriccion):
-            raise Exception(Restriccion.NOMBRE_CLASE + '.Y'
-                            + ': Los parametros deben ser instancias de Restriccion!'
+        if type(lRestricciones) is not list or len(lRestricciones) < 2:
+            raise Exception(Restriccion.NOMBRE_CLASE + '.Y()'
+                            + ': Se deben pasar al menos 2 instancias de Restriccion!'
                             )
 
-        return Restriccion(restriccion_0, restriccion_1, Restriccion.Y)
+        else:
+            #validamos cada elemento de la lista
+            for r in lRestricciones:
+                if type(r) is not Restriccion:
+                    raise Exception(Restriccion.NOMBRE_CLASE + '.Y()'
+                            + ': Se deben ser instancias de Restriccion!'
+                            )
+
+        return Restriccion(None, lRestricciones, Restriccion._Y_)
 
 
     @staticmethod
-    def O(restriccion_0, restriccion_1):
+    def O(lRestricciones):
         '''
         Devuelve una instancia de Restriccion de tipo de logico
         con operador O (or)
         
-        restriccion_0 = instancia de Resctriccion
-        restriccion_1 = instancia de Resctriccion
+        lRestricciones = lista de instancias de Restriccion
+        
+        Ej.
+            [Restriccion.Ig(..), Restriccion.Entre(..), ...] 
         
         '''
 
-        if(type(restriccion_0) is not Restriccion
-           or type(restriccion_1) is not Restriccion):
-            raise Exception(Restriccion.NOMBRE_CLASE + '.O'
-                            + ': Los parametros deben ser instancias de Restriccion!'
+        if type(lRestricciones) is not list or len(lRestricciones) < 2:
+            raise Exception(Restriccion.NOMBRE_CLASE + '.O()'
+                            + ': Se deben pasar al menos 2 instancias de Restriccion!'
+                            )
+        else:
+            #validamos cada elemento de la lista
+            for r in lRestricciones:
+                if type(r) is not Restriccion:
+                    raise Exception(Restriccion.NOMBRE_CLASE + '.O()'
+                            + ': Se deben ser instancias de Restriccion!'
                             )
 
-        return Restriccion(restriccion_0, restriccion_1, Restriccion.O)
+        return Restriccion(None, lRestricciones, Restriccion._O_)
+
+
+    def __formatoValor(self, oValor):
+        '''
+        Devuelve el parametro de valor formateado de acuerdo a su tipo
+        
+        oValor = instancia del valor a formatear
+        
+        '''
+
+        #si no se debe formatear, lo devolvemos tal cual
+        if not self.__bFormatear: return oValor
+
+        if type(oValor) is str:
+            return "'" + oValor + "'"
+
+        if type(oValor) in [float, int, long]:
+            return oValor
+
+        if type(oValor) is datetime.datetime:
+            return oValor.strftime("'%Y-%m-%d %H:%M:%S'")
+
+        return oValor

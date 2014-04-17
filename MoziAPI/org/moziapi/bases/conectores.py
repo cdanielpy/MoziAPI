@@ -59,20 +59,11 @@ class ConectorBase(object):
     def lEjecutarProcedimiento(self, cConsultaSQL, tParametros):
         raise NotImplementedError
 
-
-    def Conectado(self):
+    def bConectado(self):
         raise NotImplementedError
 
-
-    def MostrarSQL(self, bValor):
-        '''
-        Establece si se muestran o no las sentencias ejecutadas
-        bValor = [True|False]
-        
-        '''
-
-        self._bMostrarSql = bValor
-
+    def mostrarSQL(self):
+        raise NotImplementedError
 
     def __str__(self):
         '''
@@ -84,3 +75,14 @@ class ConectorBase(object):
                                , self._cServidor
                                , self._cServicio
                                )
+
+
+    def _mostrarComando(self, cComando):
+        '''
+        Imprime en pantalla el comando parametro
+        
+        cComando = comando sql
+        
+        '''
+
+        if self._bMostrarSql: print cComando

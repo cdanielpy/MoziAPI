@@ -10,12 +10,13 @@ Created on 13/04/2014
 
         Para este ejemplo se utiliza el modulo mysql/python connector
         descargable desde la pagina de la misma mysql
-        en el siguiente enlace http://dev.mysql.com/downloads/connector/python/1.1.html
+        en el siguiente enlace
+        http://dev.mysql.com/downloads/connector/python/1.1.html
 '''
 
 
 
-#importamos los modulos y librerias necesarias
+# importamos los modulos y librerias necesarias
 import mysql.connector
 from org.moziapi.bases.conectores import ConectorBase
 
@@ -34,9 +35,9 @@ class MySqlUtiles(ConectorBase):
                 , cCatalogo
                 , cUsuario
                 , cContrasena
-                , nPuerto = 3306
-                , nTiempoEspera = 300
-                , nMaxPool = 10
+                , nPuerto=3306
+                , nTiempoEspera=300
+                , nMaxPool=10
                 ):
         '''
         Inicializador de la clase
@@ -52,7 +53,7 @@ class MySqlUtiles(ConectorBase):
         
         '''
 
-        #invocamos al inicializador de la clase base
+        # invocamos al inicializador de la clase base
         super(MySqlUtiles, self).__init__()
 
         self._cServidor = cServidor
@@ -75,30 +76,30 @@ class MySqlUtiles(ConectorBase):
 
         NOMBRE_METODO = self.NOMBRE_CLASE + '.lConectar()'
 
-        #resultado por defecto
+        # resultado por defecto
         lResultado = [0, NOMBRE_METODO + ' No Ejecutado!']
-        
+
         try:
-            #intentamos iniciar la conexion
-            self._oConexion = mysql.connector.connect(host = self._cServidor
-                                              , user = self._cUsuario
-                                              , password = self._cContrasena
-                                              , database = self._cCatalogo
-                                              , port = self._nPuerto
-                                              , pool_size = self._nMaxPool
+            # intentamos iniciar la conexion
+            self._oConexion = mysql.connector.connect(host=self._cServidor
+                                              , user=self._cUsuario
+                                              , password=self._cContrasena
+                                              , database=self._cCatalogo
+                                              , port=self._nPuerto
+                                              , pool_size=self._nMaxPool
                                               )
 
-            #establecemos el resultado del metodo
+            # establecemos el resultado del metodo
             lResultado = [1, 'Ok']
 
-            #establecemos el marcador de conexion activa
+            # establecemos el marcador de conexion activa
             self._bConectado = True
 
         except BaseException, oError:
-            #en caso de error, devolvemos el error como parte del resultado
-            lResultado= [-1, NOMBRE_METODO + ' Error: ' + str(oError)]
+            # en caso de error, devolvemos el error como parte del resultado
+            lResultado = [-1, NOMBRE_METODO + ' Error: ' + str(oError)]
 
-        #devolvemos el resultado del metodo
+        # devolvemos el resultado del metodo
         return lResultado
 
 
@@ -110,24 +111,24 @@ class MySqlUtiles(ConectorBase):
 
         NOMBRE_METODO = self.NOMBRE_CLASE + '.lDesconectar()'
 
-        #resultado por defecto
+        # resultado por defecto
         lResultado = [0, NOMBRE_METODO + ' No Ejecutado!']
 
         try:
-            #intentamos iniciar la conexion
+            # intentamos iniciar la conexion
             self._oConexion.close()
 
-            #establecemos el resultado del metodo
+            # establecemos el resultado del metodo
             lResultado = [1, 'Ok']
 
-            #establecemos el marcador de conexion cerrada
+            # establecemos el marcador de conexion cerrada
             self._bConectado = False
 
         except BaseException, oError:
-            #en caso de error, devolvemos el error como parte del resultado
-            lResultado= [-1, NOMBRE_METODO + ' Error: ' + str(oError)]
+            # en caso de error, devolvemos el error como parte del resultado
+            lResultado = [-1, NOMBRE_METODO + ' Error: ' + str(oError)]
 
-        #devolvemos el resultado del metodo
+        # devolvemos el resultado del metodo
         return lResultado
 
 
@@ -139,21 +140,21 @@ class MySqlUtiles(ConectorBase):
 
         NOMBRE_METODO = self.NOMBRE_CLASE + '.lConfirmar()'
 
-        #resultado por defecto
+        # resultado por defecto
         lResultado = [0, NOMBRE_METODO + ' No Ejecutado!']
 
         try:
-            #intentamos confirmar la transaccion
+            # intentamos confirmar la transaccion
             self._oConexion.commit()
 
-            #establecemos el resultado del metodo
+            # establecemos el resultado del metodo
             lResultado = [1, 'Ok']
 
         except BaseException, oError:
-            #en caso de error, devolvemos el error como parte del resultado
-            lResultado= [-1, NOMBRE_METODO + ' Error: ' + str(oError)]
+            # en caso de error, devolvemos el error como parte del resultado
+            lResultado = [-1, NOMBRE_METODO + ' Error: ' + str(oError)]
 
-        #devolvemos el resultado del metodo
+        # devolvemos el resultado del metodo
         return lResultado
 
 
@@ -165,25 +166,25 @@ class MySqlUtiles(ConectorBase):
 
         NOMBRE_METODO = self.NOMBRE_CLASE + '.lRevertir()'
 
-        #resultado por defecto
+        # resultado por defecto
         lResultado = [0, NOMBRE_METODO + ' No Ejecutado!']
 
         try:
-            #intentamos revertir la transaccion
+            # intentamos revertir la transaccion
             self._oConexion.rollback()
 
-            #establecemos el resultado del metodo
+            # establecemos el resultado del metodo
             lResultado = [1, 'Ok']
 
         except BaseException, oError:
-            #en caso de error, devolvemos el error como parte del resultado
-            lResultado= [-1, NOMBRE_METODO + ' Error: ' + str(oError)]
+            # en caso de error, devolvemos el error como parte del resultado
+            lResultado = [-1, NOMBRE_METODO + ' Error: ' + str(oError)]
 
-        #devolvemos el resultado del metodo
+        # devolvemos el resultado del metodo
         return lResultado
 
 
-    def lEjecutarConsulta(self, cConsultaSQL, tParametros = None):
+    def lEjecutarConsulta(self, cConsultaSQL, tParametros=None):
         '''
         Ejecuta la preparacion de ejecucion de una consulta
         mediante una instancia de Cursor y devuelve una lista
@@ -196,31 +197,34 @@ class MySqlUtiles(ConectorBase):
 
         NOMBRE_METODO = self.NOMBRE_CLASE + '.lEjecutarConsulta()'
 
-        #resultado por defecto
+        # resultado por defecto
         lResultado = [0, NOMBRE_METODO + ' No Ejecutado!']
 
         try:
-            #intentamos instanciar un cursor
+            # intentamos instanciar un cursor
             oCursor = self._oConexion.cursor()
 
-            #ejecutamos la consulta
+            # ejecutamos la consulta
             if tParametros is not None:
+                self._mostrarComando(cConsultaSQL % tParametros)
                 oCursor.execute(cConsultaSQL, tParametros)
+
             else:
+                self._mostrarComando(cConsultaSQL)
                 oCursor.execute(cConsultaSQL)
 
-            #establecemos el resultado del metodo
+            # establecemos el resultado del metodo
             lResultado = [1, oCursor]
 
         except BaseException, oError:
-            #en caso de error, devolvemos el error como parte del resultado
-            lResultado= [-1, NOMBRE_METODO + ' Error: ' + str(oError)]
+            # en caso de error, devolvemos el error como parte del resultado
+            lResultado = [-1, NOMBRE_METODO + ' Error: ' + str(oError)]
 
-        #devolvemos el resultado del metodo
+        # devolvemos el resultado del metodo
         return lResultado
 
 
-    def lEjecutarSentencia(self, cSentenciaSQL, tParametros = None):
+    def lEjecutarSentencia(self, cSentenciaSQL, tParametros=None):
         '''
         Ejecuta una sentencia sql y devuelve una lista
         de resultados [int, string]
@@ -232,34 +236,38 @@ class MySqlUtiles(ConectorBase):
         
         NOMBRE_METODO = self.NOMBRE_CLASE + '.lEjecutarSentencia()'
 
-        #resultado por defecto
+        # resultado por defecto
         lResultado = [0, NOMBRE_METODO + ' No Ejecutado!']
 
         try:
-            #intentamos instanciar un cursor
+            # intentamos instanciar un cursor
             oCursor = self._oConexion.cursor()
 
-            #ejecutamos la consulta
+            
+
+            # ejecutamos la consulta
             if tParametros is not None:
+                self._mostrarComando(cSentenciaSQL % tParametros)
                 oCursor.execute(cSentenciaSQL, tParametros)
             else:
+                self._mostrarComando(cSentenciaSQL)
                 oCursor.execute(cSentenciaSQL)
 
-            #establecemos el resultado del metodo
+            # establecemos el resultado del metodo
             lResultado = [1, 'Ok']
 
-            #cerramso el cursor
+            # cerramos el cursor
             oCursor.close()
 
         except BaseException, oError:
-            #en caso de error, devolvemos el error como parte del resultado
-            lResultado= [-1, NOMBRE_METODO + ' Error: ' + str(oError)]
+            # en caso de error, devolvemos el error como parte del resultado
+            lResultado = [-1, NOMBRE_METODO + ' Error: ' + str(oError)]
 
-        #devolvemos el resultado del metodo
+        # devolvemos el resultado del metodo
         return lResultado
 
 
-    def Conectado(self):
+    def conectado(self):
         '''
         Devuelve True si la conexion esta actualmente abierta
         
@@ -268,6 +276,16 @@ class MySqlUtiles(ConectorBase):
         
         '''
 
-        #establecemos el marcador de conexion activa
+        # establecemos el marcador de conexion activa
         self._bConectado = True
 
+
+    def mostrarSQL(self, bValor):
+        '''
+        Establece si se muestran o no las sentencias ejecutadas
+        
+        bValor = [True|False]
+        
+        '''
+
+        self._bMostrarSql = bValor
