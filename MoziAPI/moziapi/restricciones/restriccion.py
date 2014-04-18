@@ -61,19 +61,19 @@ class Restriccion(object):
         self.__bFormatear = bFormatear
         self.__bModoAtributos = bModoAtributos
 
-        if cOperador in [Restriccion._IGUAL_
+        if cOperador in (Restriccion._IGUAL_
                          , Restriccion._NO_IGUAL_
                          , Restriccion._MENOR_QUE_
                          , Restriccion._MENOR_O_IGUAL_QUE_
                          , Restriccion._MAYOR_QUE_
                          , Restriccion._MAYOR_O_IGUAL_QUE_
                          , Restriccion._COMO_
-                         ]:
+                         ):
             self.__cSql = cOperador % (cAtributo
                                         , self.__formatoValor(oValor)
                                         )
 
-        elif cOperador in [Restriccion._Y_, Restriccion._O_]:
+        elif cOperador in (Restriccion._Y_, Restriccion._O_):
             self.__cSql = cOperador
 
         elif cOperador is Restriccion._ENTRE_:
@@ -84,9 +84,7 @@ class Restriccion(object):
 
 
     def __getAtributo(self): return self.__cAtributo
-
     def __getValor(self): return self.__oValor
-
     def __str__(self): return self.__cSql
 
 
@@ -105,7 +103,7 @@ class Restriccion(object):
 
         # reemplazamos en la cadena SQL los valores de atributos por sus nombres
         # de campos de tabla
-        if self.__cOperador in [Restriccion._COMO_
+        if self.__cOperador in (Restriccion._COMO_
                                 , Restriccion._IGUAL_
                                 , Restriccion._NO_IGUAL_
                                 , Restriccion._MENOR_QUE_
@@ -113,7 +111,7 @@ class Restriccion(object):
                                 , Restriccion._MAYOR_QUE_
                                 , Restriccion._MAYOR_O_IGUAL_QUE_
                                 , Restriccion._ENTRE_
-                                ]:
+                                ):
 
             if self.__bModoAtributos:
                 self.__cSql = self.__cSql.replace('@' + self.__cAtributo + '@'
@@ -433,16 +431,20 @@ class Restriccion(object):
         lRestricciones = lista de instancias de Restriccion
         
         Ej.
-            [Restriccion.Ig(..), Restriccion.Entre(..), ...] 
+            (Restriccion.Ig(..), Restriccion.Entre(..), ...)
         
         '''
 
-        if type(lRestricciones) is not list or len(lRestricciones) < 2:
+        if type(lRestricciones) is not list \
+            or type(lRestricciones) is not tuple \
+            or len(lRestricciones) < 2:
+
             raise Exception(Restriccion.NOMBRE_CLASE + '.O()'
                             + ': Se deben pasar al menos 2 instancias de Restriccion!'
                             )
+
         else:
-            #validamos cada elemento de la lista
+            #validamos cada elemento de la lista/tupla
             for r in lRestricciones:
                 if type(r) is not Restriccion:
                     raise Exception(Restriccion.NOMBRE_CLASE + '.O()'

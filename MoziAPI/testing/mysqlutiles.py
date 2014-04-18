@@ -18,7 +18,7 @@ Created on 13/04/2014
 
 # importamos los modulos y librerias necesarias
 import mysql.connector
-from org.moziapi.bases.conectores import ConectorBase
+from moziapi.bases import ConectorBase
 
 
 

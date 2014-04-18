@@ -1,8 +1,8 @@
 eclipse.preferences.version=1
-encoding//org/moziapi/bases/conectores.py=utf-8
-encoding//org/moziapi/bases/otdbase.py=utf-8
-encoding//org/moziapi/restricciones/restriccion.py=utf-8
-encoding//org/moziapi/uniones/union.py=utf-8
+encoding//moziapi/bases/conectores.py=utf-8
+encoding//moziapi/bases/otdbase.py=utf-8
+encoding//moziapi/restricciones/restriccion.py=utf-8
+encoding//moziapi/uniones/union.py=utf-8
 encoding//testing/mysqlutiles.py=utf-8
 encoding//testing/otds.py=utf-8
 encoding/test.py=utf-8

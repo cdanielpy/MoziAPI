@@ -17,17 +17,21 @@ Created on 13/04/2014
 #importamos los modulos y clases necesarias
 from testing.mysqlutiles import MySqlUtiles
 from testing.otds import Employee, Department, DepEmp
-from org.moziapi.restricciones import Restriccion
 from datetime import datetime
-from org.moziapi.uniones.union import Union
+from moziapi import Union, Restriccion
+import moziapi
 
 
 
 if __name__ == '__main__':
 
-    # iniciamos la conexion a la BD
-    oConexion = MySqlUtiles('localhost', '', 'employees', 'root', 'yourpassword')
+    #preguntamos por la contrasena de acceso a la base de datos
+    pwd = raw_input('contrasena MySQL: ')
 
+    #instanciamos la utileria
+    oConexion = MySqlUtiles('localhost', '', 'employees', 'root', pwd)
+
+    # iniciamos la conexion a la BD
     lResultado = oConexion.lConectar()
 
     # si no se conecto
@@ -45,16 +49,18 @@ if __name__ == '__main__':
     #cSentencia = Employee().filtrar(Restriccion.Entre(_nId=[10008, 10015]))
 
     #filtro OR con AND
-#    cSentencia = Employee().filtrar(Restriccion.O(
-#                                                  [
-#                                                  Restriccion.Ig(_nId = '10008')
-#                                                  ,Restriccion.Y([
-#                                                                 Restriccion.Ig(_nId = 100011)
-#                                                                , Restriccion.Ig(_dFechaIngreso = datetime(1985, 1, 1))
-#                                                                 ])
-#                                                  ]
-#                                                  )
-#                                             )
+    #===================================================================================================================
+    # cSentencia = Employee().filtrar(Restriccion.O(
+    #                                               [
+    #                                               Restriccion.Ig(_nId = '10008')
+    #                                               ,Restriccion.Y([
+    #                                                              Restriccion.Ig(_nId = 100011)
+    #                                                             , Restriccion.Ig(_dFechaIngreso = datetime(1985, 1, 1))
+    #                                                              ])
+    #                                               ]
+    #                                               )
+    #                                          )
+    #===================================================================================================================
 
 
 #################################################
@@ -73,19 +79,22 @@ if __name__ == '__main__':
 #    cSentencia = emp.filtrar('_dep_.emp_no = _emp_.emp_no AND _emp_.id BETWEEN 10008 AND 10015') 
 
     #join via Restriccion
-#    cSentencia = emp.filtrar(Restriccion.Ig('_emp_.emp_no', '_dep_.emp_no'))
-#     cSentencia = emp.filtrar(Restriccion.Y([
-#                                               Restriccion.Ig('_emp_.emp_no', '_dep_.emp_no')
-#                                               , Restriccion.Entre(_nId=[10008, 10050])
-#                                               , Restriccion.Dif('_emp_.emp_no', '10011')
-#                                               , Restriccion.MenIg(_nId = 10034)
-#                                               , Restriccion.May(_nId = 10009)
-#                                               ]
-#                                ))
+    # cSentencia = emp.filtrar(Restriccion.Ig('_emp_.emp_no', '_dep_.emp_no'))
+    #===================================================================================================================
+    # cSentencia = emp.filtrar(Restriccion.Y([
+    #                                            Restriccion.Ig('_emp_.emp_no', '_dep_.emp_no')
+    #                                            , Restriccion.Entre(_nId=[10008, 10050])
+    #                                            , Restriccion.Dif('_emp_.emp_no', '10011')
+    #                                            , Restriccion.MenIg(_nId = 10034)
+    #                                            , Restriccion.May(_nId = 10009)
+    #                                            ]
+    #                             ))
+    #===================================================================================================================
 
     #restricciones sobre cadenas
-#     cSentencia = emp.filtrar(Restriccion.Como('_emp_.last_name', '%Piveteau%'))
-    cSentencia = emp.filtrar(Restriccion.Como(_cApellido = '%Piveteau%'))
+    cSentencia = emp.filtrar(Restriccion.Y([Restriccion.Ig('_emp_.emp_no', '_dep_.emp_no')
+                                            , Restriccion.Como(_cApellido = '%Piveteau%')
+                                            ]))
 
 #################################################
 #################################################
@@ -104,3 +113,4 @@ if __name__ == '__main__':
         n += 1
         if n > 50: break
 
+    print moziapi.__VERSION__

@@ -11,7 +11,7 @@ Created on 13/04/2014
 '''
 
 # importamos los modulos y clases necesarias
-from org.moziapi.bases.otdbase import OTDBase
+from moziapi.bases import OTDBase
 
 
 class Employee(OTDBase):

@@ -9,15 +9,14 @@ Created on 10/04/2014
 
 
 # importamos los modulos y clases necesarias
-from org.moziapi.restricciones import Restriccion
-from org.moziapi.uniones.union import Union
+from moziapi.restricciones import Restriccion
+from moziapi.uniones.union import Union
 
 
 class OTDBase(object):
     '''
     Clase base para modelo de tablas de bases de datos
     '''
-
 
     def __init__(self, cNombreTabla, **kwargs):
         '''
