@@ -1,4 +1,4 @@
-MoziAPIMoziAPI
+MoziAPI
 =======
 
 Utilería prototipo de administración de interacción Python - Base de Datos.-
