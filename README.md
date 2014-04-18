@@ -1,4 +1,4 @@
-MoziAPI
+MoziAPIMoziAPI
 =======
 
 Utilería prototipo de administración de interacción Python - Base de Datos.-
@@ -16,7 +16,7 @@ Esta clase no debe ser utilizada directamente, debe ser implementada por otras p
 ### OTDBase
 _Clase base para modelo de tablas de bases de datos._
 
-Esta clase esta "inspirada" en los_ Entities_ de EJB de Java y el patrón _Value Object_, la idea es que sea un lugar centralizado donde definir la estructura de la representacion de clase de una tabla e instancias de datos contenidos en sus registros.-
+Esta clase esta "inspirada" en los _Entities_ de EJB en Java y el patrón _Value Object_, la idea es que sea un lugar centralizado donde definir la estructura de la representacion de clase de una tabla e instancias de datos contenidos en sus registros.-
 
 ### Restriccion
 _Clase para generación de criterios de Restriccion de resultados._
@@ -26,7 +26,22 @@ Esta clase permite abstraer la generación de filtros _"where"_ de una sentencia
 ### Unión
 _Clase para generación de sentencias con intersección de tablas._
 
-Esta clase permite generar los comandos de vinculación entre tablas, es decir, los segmentos _"join"_, no así la relación entre los campos de enlace entre las mismas, éstas deben establecerse por medio de instancias de la clase **_Restriccion_**, salvo caso que se desee establecer una relación de _"producto cartesiano"_ o _"cross join"_.-
+Esta clase permite generar los comandos de vinculación entre tablas, es decir, los segmentos _"join"_ y las relaciones entre las tablas, éstas deben establecerse por medio de instancias de la clase **_Restriccion_**.
+
+En caso que se desee establecer una relación de _"producto cartesiano"_ o _"cross join"_, la restricción se debe proveer por una comparación de valores simple y de _"relleno"_.-
+
+	Ej.
+    
+    emp = Employee(cAlias = '_emp_')
+    emp.unir(Union(_dep_ = DepEmp
+                   , cTipo = Union.NORMAL
+                   , oRestriccion = Restriccion.Ig('1', '1')
+                   )
+             )
+
+	Lo que generará la siguiente cláusula:
+    
+    SELECT _emp_.emp_no, ... FROM employees AS _emp_ JOIN dept_emp AS _dep_ ON 1 = 1
 
 ## Versión 0.0.1
 
@@ -45,12 +60,11 @@ Para esta versión inicial, sólo se soportan las siguientes características:
 	
     Soporte sólo para la unión entre dos tablas, siguiente paso será la posibilidad de vincular más de ellas.-
 
-	Sólo de tipo _JOIN_, implementado y probado.
+	Sólo tipos _JOIN, LEFT OUTER JOIN y RIGHT OUTHER JOIN_, implementados y probados.
     
     Evaluando si es mejor un método por tipo o implementar un método único especificando el tipo por medio de constantes.-
 
 ## Ejemplo de Uso
 
 Se incluye un _proyecto de test_, dónde se muestra el uso de cada clase por medio de una conexión a una base de datos MySQL.-
-
 
