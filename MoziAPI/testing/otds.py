@@ -77,14 +77,7 @@ class Department(OTDBase):
         '''
 
         # invocamos al inicializador de la clase base
-        super(Department, self).__init__('departments')
-
-        # si se recibio el diccionario de parametros
-        if parametros:
-            # lo recorremos
-            for k in parametros:
-                # asignamos los valores a los atributos correspondientes
-                self.__setattr__(self._dicCampos[k], parametros[k])
+        super(Department, self).__init__('departments', **parametros)
 
 
 
@@ -112,18 +105,11 @@ class DepEmp(OTDBase):
         
         '''
 
-        # invocamos al inicializador de la clase base
-        super(DepEmp, self).__init__('dept_emp')
-
         # valores por defecto para atributos
         self._nEmployeeId = 0
         self._cDepartmentId = ''
         self._dDesde = None
         self._dHasta = None
 
-        # si se recibio el diccionario de parametros
-        if parametros:
-            # lo recorremos
-            for k in parametros:
-                # asignamos los valores a los atributos correspondientes
-                self.__setattr__(self._dicCampos[k], parametros[k])
+        # invocamos al inicializador de la clase base
+        super(DepEmp, self).__init__('dept_emp', **parametros)

@@ -70,16 +70,20 @@ if __name__ == '__main__':
 #################################################
 
     emp = Employee(cAlias = '_emp_')
-    emp.unir(Union.Normal(_dep_ = DepEmp))
+    emp.unir(Union(_dep_ = DepEmp
+                   , cTipo = Union.NORMAL
+                   #las resctricciones de uniones deben crearse por cadenas no por atributos
+                   , oRestriccion = Restriccion.Ig('_emp_.emp_no', '_dep_.emp_no')
+                   )
+             )
 
     #si obviamos la restriccion se convierte en un crossjoin
 
     #join via sql nativo
-#     cSentencia = emp.filtrar('_dep_.emp_no = _emp_.emp_no')
-#    cSentencia = emp.filtrar('_dep_.emp_no = _emp_.emp_no AND _emp_.id BETWEEN 10008 AND 10015') 
+    # cSentencia = emp.filtrar('_dep_.emp_no <= 10034 AND _emp_.id BETWEEN 10008 AND 10015') 
 
     #join via Restriccion
-    # cSentencia = emp.filtrar(Restriccion.Ig('_emp_.emp_no', '_dep_.emp_no'))
+    # cSentencia = emp.filtrar(Restriccion.MenIg(_nId = 10034))
     #===================================================================================================================
     # cSentencia = emp.filtrar(Restriccion.Y([
     #                                            Restriccion.Ig('_emp_.emp_no', '_dep_.emp_no')
@@ -92,9 +96,7 @@ if __name__ == '__main__':
     #===================================================================================================================
 
     #restricciones sobre cadenas
-    cSentencia = emp.filtrar(Restriccion.Y([Restriccion.Ig('_emp_.emp_no', '_dep_.emp_no')
-                                            , Restriccion.Como(_cApellido = '%Piveteau%')
-                                            ]))
+    cSentencia = emp.filtrar(Restriccion.Como(_cApellido = '%Piveteau%'))
 
 #################################################
 #################################################
@@ -113,4 +115,4 @@ if __name__ == '__main__':
         n += 1
         if n > 50: break
 
-    print moziapi.__VERSION__
+    print 'moziapi.__VERSION__ =', moziapi.__VERSION__

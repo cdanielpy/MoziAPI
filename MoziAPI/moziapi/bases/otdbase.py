@@ -32,9 +32,7 @@ class OTDBase(object):
         self._cDescripcion = ''
         self._dicAtributos = {v:k for k, v in self._dicCampos.iteritems()}
 
-        if kwargs.get('cAlias'):
-            self.__cAlias = str(kwargs.get('cAlias'))
-            kwargs.__delitem__('cAlias')
+        if kwargs.has_key('cAlias'): self.__cAlias = str(kwargs.pop('cAlias'))
 
         else: self.__cAlias = '_this_'
 

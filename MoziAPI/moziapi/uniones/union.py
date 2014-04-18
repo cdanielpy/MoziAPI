@@ -9,6 +9,10 @@ Created on 13/04/2014
 @summary: Clase para generacion de sentencias con interseccion de tablas
 '''
 
+#importamos los modulos y clases necesarias
+
+
+
 class Union(object):
     '''
     Clase para generacion de sentencias con interseccion de tablas
@@ -21,34 +25,56 @@ class Union(object):
     DERECHA = ' RIGHT OUTER JOIN'
 
 
-    def __init__(self, cAlias, clsClaseOtd, cTipo):
+    __CLAUSULA = ' %s %s AS %s ON %s '
+
+
+
+    def __init__(self, **kwargs):
         '''
         Inicializador de la clase
         
-        cAlias      = alias para la tabla en la relacion
-        clsClaseOtd = clase derivada de OTDBase
-        cTipo       = [NORMAL | IZQUIERDA | DERECHA]
+        cTipo        = [NORMAL | IZQUIERDA | DERECHA]
+        oRestriccion = instacia de Restriccion donde se indican
+                        la relacion entre campos de las tablas
+        parametros   => cAlias = ClaseOTD
         
         '''
 
         super(Union, self).__init__()
 
         # si se paso los parametros como corresponden
-        if type(clsClaseOtd) is type and type(cAlias) is str and type(cTipo) is str:
-            self._oTabla = clsClaseOtd()
-            self._cAlias = cAlias
-            self._oTabla.alias = cAlias
+        if kwargs and len(kwargs) is 3:
 
-            self.__cCondicionSQL = '%s %s AS %s' % (cTipo
-                                                    , self._oTabla.cNombreTabla
-                                                    , self._cAlias
-                                                    )
+            #extraemos el tipo de union
+            cTipo = kwargs.pop('cTipo')
+            
+            #extraemos la restriccion
+            oRestriccion = kwargs.pop('oRestriccion')
+
+            #tomamos el alias, que llega como clave
+            self._cAlias = kwargs.keys().pop()
+
+            #la clase hija de OTDbase, que llega como valor
+            self._oTabla = kwargs.values().pop()
+
+            if type(self._oTabla) is type \
+                and type(self._cAlias) is str:
+
+                #creamos la instancia de la clase
+                self._oTabla = self._oTabla(cAlias = self._cAlias)
+
+                #combinamos todo
+                self.__cCondicionSQL = Union.__CLAUSULA % (cTipo
+                                                        , self._oTabla.cNombreTabla
+                                                        , self._cAlias
+                                                        , oRestriccion.getCondiciones(self._oTabla)
+                                                        )
 
         else:
             # sino, excepcion
             raise Exception(Union.NOMBRE_CLASE
                             + ': El parametro debe ser una clase hija de '
-                            + 'OTDBase y un alias para el mismo!'
+                            + 'OTDBase y un alias para la misma!'
                             )
 
 
@@ -62,14 +88,17 @@ class Union(object):
         Configura la sentencia resultante de la union de tablas
         '''
 
+        #combinamos la lista de campos de las tablas involucradas
         oClaseOTD._cListaCampos = oClaseOTD.listaCampos + ', '
         oClaseOTD._cListaCampos+= self._oTabla.listaCampos
         oClaseOTD._cSelect = None
+
+        #devolvemos la clausula de interseccion de tablas
         return self.__cCondicionSQL
 
 
     @staticmethod
-    def Normal(**parametros):
+    def Normal(**kwargs):
         '''
         Devuelve la instancia de Union de tipo JOIN
         
@@ -77,18 +106,24 @@ class Union(object):
         
         '''
 
+        import warnings
+
+        #advertencia de componente deprecado
+        warnings.showwarning('Union.Normal(): deprecado, recurrir directamente al constructor de la clase!'
+                             , DeprecationWarning
+                             , __file__
+                             , 0
+                             )
 
         # si el parametro NO es un diccionario
-        if type(parametros) is not dict:
+        if type(kwargs) is not dict:
+
             raise Exception(Union.NOMBRE_CLASE
                             + ".Normal: El parametro se debe pasar "
                             + "{'alias':ClaseOTD}!"
                             )
 
-        return Union(parametros.keys().pop()
-                     , parametros.values().pop()
-                     , Union.NORMAL
-                     )
+        return Union(cTipo = Union.NORMAL, **kwargs)
 
 
     union = property(fget=__getUnion, doc='Devuelve la clausula de union')

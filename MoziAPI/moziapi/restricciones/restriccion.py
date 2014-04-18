@@ -382,7 +382,7 @@ class Restriccion(object):
         '''
 
         if type(comparacion) is not dict \
-            or type(comparacion.values().pop()) is not list:
+            or type(comparacion.values().pop()) not in (list, tuple):
             raise Exception(Restriccion.NOMBRE_CLASE + '.Entre()'
                             + ': Se debe especificar el atributo y los valores limites!'
                             )
@@ -406,7 +406,7 @@ class Restriccion(object):
         
         '''
 
-        if type(lRestricciones) is not list or len(lRestricciones) < 2:
+        if type(lRestricciones) not in (list, tuple) or len(lRestricciones) < 2:
             raise Exception(Restriccion.NOMBRE_CLASE + '.Y()'
                             + ': Se deben pasar al menos 2 instancias de Restriccion!'
                             )
@@ -435,8 +435,7 @@ class Restriccion(object):
         
         '''
 
-        if type(lRestricciones) is not list \
-            or type(lRestricciones) is not tuple \
+        if type(lRestricciones) not in (list, tuple) \
             or len(lRestricciones) < 2:
 
             raise Exception(Restriccion.NOMBRE_CLASE + '.O()'
