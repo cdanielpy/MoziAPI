@@ -25,7 +25,7 @@ class Union(object):
     DERECHA = ' RIGHT OUTER JOIN'
 
 
-    __CLAUSULA = ' %s %s AS %s ON %s '
+    __CLAUSULA = '%s %s AS %s ON %s'
 
 
 
@@ -85,7 +85,8 @@ class Union(object):
 
     def setUniones(self, oClaseOTD):
         '''
-        Configura la sentencia resultante de la union de tablas
+        Genera las clausulas resultante de la union de tablas
+        
         '''
 
         #combinamos la lista de campos de las tablas involucradas

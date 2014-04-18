@@ -8,15 +8,17 @@ Created on 13/04/2014
 @contact: cdaniel.py@gmail.com
 @summary: prueba de modulos y clases
 
-    Utilizamos una conexion a una BD mysql/mariadb y la base de datos de ejemplo
-    EMPLOYEES, que se puede descargar en el siguiente enlace http://launchpad.net/test-db/
+    Utilizamos una conexion a una BD mysql/mariadb y la base de datos
+    de ejemplo EMPLOYEES, que se puede descargar en el siguiente enlace
+    
+    http://launchpad.net/test-db/
 
 '''
 
 
 #importamos los modulos y clases necesarias
 from testing.mysqlutiles import MySqlUtiles
-from testing.otds import Employee, Department, DepEmp
+from testing.otds import Employee, Department, DeptEmp
 from datetime import datetime
 from moziapi import Union, Restriccion
 import moziapi
@@ -49,18 +51,19 @@ if __name__ == '__main__':
     #cSentencia = Employee().filtrar(Restriccion.Entre(_nId=[10008, 10015]))
 
     #filtro OR con AND
-    #===================================================================================================================
-    # cSentencia = Employee().filtrar(Restriccion.O(
-    #                                               [
-    #                                               Restriccion.Ig(_nId = '10008')
-    #                                               ,Restriccion.Y([
-    #                                                              Restriccion.Ig(_nId = 100011)
-    #                                                             , Restriccion.Ig(_dFechaIngreso = datetime(1985, 1, 1))
-    #                                                              ])
-    #                                               ]
-    #                                               )
-    #                                          )
-    #===================================================================================================================
+#===============================================================================
+#     oRest_Y = Restriccion.Y((
+#                          Restriccion.Ig(_nId = 100011)
+#                         , Restriccion.Ig(dFechaIngreso = datetime(1985, 1, 1))
+#                          ))
+# 
+#     oRest_O = Restriccion.O((Restriccion.Ig(_nId = '10008')
+#                           , oRest_Y
+#                           ))
+# 
+#     #obtenemos la sentecia formada
+#     cSentencia = Employee().filtrar(oRest_O)
+#===============================================================================
 
 
 #################################################
@@ -69,34 +72,51 @@ if __name__ == '__main__':
 
 #################################################
 
+    #una instancia de la clase Employee con un alias para su tabla
     emp = Employee(cAlias = '_emp_')
-    emp.unir(Union(_dep_ = DepEmp
+ 
+    #join con la tabla [dept_emp]
+    emp.unir(Union(_de_ = DeptEmp
                    , cTipo = Union.NORMAL
-                   #las resctricciones de uniones deben crearse por cadenas no por atributos
-                   , oRestriccion = Restriccion.Ig('_emp_.emp_no', '_dep_.emp_no')
+                   #las resctricciones de uniones deben crearse por cadenas
+                   # no por atributos
+                   , oRestriccion = Restriccion.Ig('_emp_.emp_no'
+                                                   , '_de_.emp_no'
+                                                   )
                    )
              )
-
-    #si obviamos la restriccion se convierte en un crossjoin
-
-    #join via sql nativo
-    # cSentencia = emp.filtrar('_dep_.emp_no <= 10034 AND _emp_.id BETWEEN 10008 AND 10015') 
-
-    #join via Restriccion
-    # cSentencia = emp.filtrar(Restriccion.MenIg(_nId = 10034))
-    #===================================================================================================================
-    # cSentencia = emp.filtrar(Restriccion.Y([
-    #                                            Restriccion.Ig('_emp_.emp_no', '_dep_.emp_no')
-    #                                            , Restriccion.Entre(_nId=[10008, 10050])
-    #                                            , Restriccion.Dif('_emp_.emp_no', '10011')
-    #                                            , Restriccion.MenIg(_nId = 10034)
-    #                                            , Restriccion.May(_nId = 10009)
-    #                                            ]
-    #                             ))
-    #===================================================================================================================
+ 
+    #join con la tabla [departments]
+    emp.unir(Union(_dep_ = Department
+                   , cTipo = Union.NORMAL
+                   , oRestriccion = Restriccion.Ig('_de_.dept_no'
+                                                   , '_dep_.dept_no'
+                                                   )
+                   )
+             )
+ 
+    #restricciones via sql nativo
+    #===========================================================================
+    # cSentencia = emp.filtrar('_de_.emp_no <= 10034'
+    #                          + ' AND _emp_.emp_no BETWEEN 10008 AND 10015'
+    #                          ) 
+    #===========================================================================
 
     #restricciones sobre cadenas
-    cSentencia = emp.filtrar(Restriccion.Como(_cApellido = '%Piveteau%'))
+    cSentencia = emp.filtrar(Restriccion.Como(cApellido = '%Piveteau%'))
+
+#===============================================================================
+#     oRest_Y = Restriccion.Y(
+#                         (Restriccion.Ig('_de_.dept_no', "'d004'")
+#                          , Restriccion.Ig('_de_.to_date'
+#                                           , datetime(9999, 1, 1)
+#                                           )
+#                          )
+#                         )
+# 
+#     #obtenemos la sentencia formada
+#     cSentencia = emp.filtrar(oRest_Y)
+#===============================================================================
 
 #################################################
 #################################################
@@ -108,9 +128,9 @@ if __name__ == '__main__':
     lCampos = Employee()._dicCampos.keys()
 
     for fila in lResultado[1]:
-        print fila
+        #print fila
         emp = Employee(**dict(zip(lCampos, fila)))
-        print emp
+        print emp.cDescripcion
 
         n += 1
         if n > 50: break

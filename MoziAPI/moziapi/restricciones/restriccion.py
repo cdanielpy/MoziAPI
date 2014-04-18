@@ -18,21 +18,21 @@ class Restriccion(object):
 
     NOMBRE_CLASE = 'Restriccion'
 
-    _Y_ = ' AND '
-    _O_ = ' OR '
+    __Y = ' AND '
+    __O = ' OR '
 
-    _COMO_ = " @%s@ LIKE %s "
+    __COMO = " @%s@ LIKE %s "
 
-    _IGUAL_ = ' @%s@ = %s '
-    _NO_IGUAL_ = ' @%s@ <> %s '
+    __IGUAL = ' @%s@ = %s '
+    __NO_IGUAL = ' @%s@ <> %s '
 
-    _MAYOR_QUE_ = ' @%s@ > %s '
-    _MENOR_QUE_ = ' @%s@ < %s '
+    __MAYOR_QUE = ' @%s@ > %s '
+    __MENOR_QUE = ' @%s@ < %s '
 
-    _MAYOR_O_IGUAL_QUE_ = ' @%s@ >= %s '
-    _MENOR_O_IGUAL_QUE_ = ' @%s@ <= %s '
+    __MAYOR_O_IGUAL_QUE = ' @%s@ >= %s '
+    __MENOR_O_IGUAL_QUE = ' @%s@ <= %s '
 
-    _ENTRE_ = ' @%s@ BETWEEN %s AND %s '
+    __ENTRE = ' @%s@ BETWEEN %s AND %s '
 
 
     def __init__(self, cAtributo, oValor, cOperador
@@ -61,22 +61,24 @@ class Restriccion(object):
         self.__bFormatear = bFormatear
         self.__bModoAtributos = bModoAtributos
 
-        if cOperador in (Restriccion._IGUAL_
-                         , Restriccion._NO_IGUAL_
-                         , Restriccion._MENOR_QUE_
-                         , Restriccion._MENOR_O_IGUAL_QUE_
-                         , Restriccion._MAYOR_QUE_
-                         , Restriccion._MAYOR_O_IGUAL_QUE_
-                         , Restriccion._COMO_
+        #evaluamos el operador
+        if cOperador in (Restriccion.__IGUAL
+                         , Restriccion.__NO_IGUAL
+                         , Restriccion.__MENOR_QUE
+                         , Restriccion.__MENOR_O_IGUAL_QUE
+                         , Restriccion.__MAYOR_QUE
+                         , Restriccion.__MAYOR_O_IGUAL_QUE
+                         , Restriccion.__COMO
                          ):
+
             self.__cSql = cOperador % (cAtributo
                                         , self.__formatoValor(oValor)
                                         )
 
-        elif cOperador in (Restriccion._Y_, Restriccion._O_):
+        elif cOperador in (Restriccion.__Y, Restriccion.__O):
             self.__cSql = cOperador
 
-        elif cOperador is Restriccion._ENTRE_:
+        elif cOperador is Restriccion.__ENTRE:
             self.__cSql = cOperador % (cAtributo
                                         , self.__formatoValor(oValor[0])
                                         , self.__formatoValor(oValor[-1])
@@ -88,7 +90,9 @@ class Restriccion(object):
     def __str__(self): return self.__cSql
 
 
-    atributo = property(fget=__getAtributo, doc='Devuelve el nombre del atributo')
+    atributo = property(fget=__getAtributo
+                        , doc='Devuelve el nombre del atributo'
+                        )
     valor = property(fget=__getValor, doc='Devuelve el valor del atributo')
 
 
@@ -103,42 +107,37 @@ class Restriccion(object):
 
         # reemplazamos en la cadena SQL los valores de atributos por sus nombres
         # de campos de tabla
-        if self.__cOperador in (Restriccion._COMO_
-                                , Restriccion._IGUAL_
-                                , Restriccion._NO_IGUAL_
-                                , Restriccion._MENOR_QUE_
-                                , Restriccion._MENOR_O_IGUAL_QUE_
-                                , Restriccion._MAYOR_QUE_
-                                , Restriccion._MAYOR_O_IGUAL_QUE_
-                                , Restriccion._ENTRE_
+        if self.__cOperador in (Restriccion.__COMO
+                                , Restriccion.__IGUAL
+                                , Restriccion.__NO_IGUAL
+                                , Restriccion.__MENOR_QUE
+                                , Restriccion.__MENOR_O_IGUAL_QUE
+                                , Restriccion.__MAYOR_QUE
+                                , Restriccion.__MAYOR_O_IGUAL_QUE
+                                , Restriccion.__ENTRE
                                 ):
 
             if self.__bModoAtributos:
-                self.__cSql = self.__cSql.replace('@' + self.__cAtributo + '@'
-                                            , oOTD.alias + '.' + oOTD._dicAtributos[self.__cAtributo]
+                __cTemp = oOTD.alias + '.' 
+                __cTemp+= oOTD._dicAtributos[self.__cAtributo]
+                return self.__cSql.replace('@' + self.__cAtributo + '@'
+                                    , __cTemp
+                                    )
+
+            else:
+                return self.__cSql.replace('@' + self.__cAtributo + '@'
+                                            , self.__cAtributo
                                             )
 
-            else:
-                #self.__cSql = ' (' + self.__cOperador % (self.__cAtributo, self.__oValor) + ') '
-                self.__cSql = self.__cOperador % (self.__cAtributo, self.__oValor)
-                self.__cSql = self.__cSql.replace('@' + self.__cAtributo + '@'
-                                                , self.__cAtributo
-                                                )
-
-        elif self.__cOperador in [Restriccion._Y_, Restriccion._O_]:
+        elif self.__cOperador in [Restriccion.__Y, Restriccion.__O]:
 
             if self.__bModoAtributos:
-                self.__cSql = self.__cOperador.join([' (' + r.getCondiciones(oOTD) + ') ' for r in self.__oValor])
+                return self.__cOperador.join(' (' + r.getCondiciones(oOTD) + ') ' for r in self.__oValor)
 
             else:
-                #self.__cSql = ' (' + self.__cOperador % (self.__cAtributo, self.__oValor) + ') '
-                self.__cSql = self.__cOperador % (self.__cAtributo, self.__oValor)
-                self.__cSql = self.__cSql.replace('@' + self.__cAtributo + '@'
+                return self.__cSql.replace('@' + self.__cAtributo + '@'
                                                 , self.__cAtributo
                                                 )
-
-        #devolvemos la condicion pero como sentencia SQL
-        return self.__cSql
 
 
     @staticmethod
@@ -156,21 +155,31 @@ class Restriccion(object):
         if type(comparacion) is dict and len(comparacion) > 0:
             return Restriccion(comparacion.keys()[0]
                            , comparacion.values()[0]
-                           , Restriccion._IGUAL_
+                           , Restriccion.__IGUAL
                            )
 
         #si es una tupla con al menos dos elementos
-        if type(atributos) is tuple and len(atributos) > 1:
-            return Restriccion(atributos[0]
+        if type(atributos) in (list, tuple) and len(atributos) > 1:
+            if type(atributos[1]) is str:
+                return Restriccion(atributos[0]
                            , atributos[1]
-                           , Restriccion._IGUAL_
+                           , Restriccion.__IGUAL
                            , False
                            , False
                            )
 
+            else:
+                return Restriccion(atributos[0]
+                               , atributos[1]
+                               , Restriccion.__IGUAL
+                               , True
+                               , False
+                               )
+
         #sino
         raise Exception(Restriccion.NOMBRE_CLASE + '.Ig()'
-                            + ': Se debe especificar el atributo y el valor a comparar!'
+                            + ': Se debe especificar el atributo'
+                            + ' y el valor a comparar!'
                             )
 
 
@@ -189,21 +198,22 @@ class Restriccion(object):
         if type(comparacion) is dict and len(comparacion) > 0:
             return Restriccion(comparacion.keys()[0]
                            , comparacion.values()[0]
-                           , Restriccion._COMO_
+                           , Restriccion.__COMO
                            )
 
         #si es una tupla con al menos dos elementos
         if type(atributos) is tuple and len(atributos) > 1:
             return Restriccion(atributos[0]
                            , atributos[1]
-                           , Restriccion._COMO_
+                           , Restriccion.__COMO
                            , False
                            , False
                            )
 
         #sino
         raise Exception(Restriccion.NOMBRE_CLASE + '.Como()'
-                            + ': Se debe especificar el atributo y el valor a comparar!'
+                            + ': Se debe especificar el atributo'
+                            + 'y el valor a comparar!'
                             )
 
 
@@ -222,22 +232,26 @@ class Restriccion(object):
         if type(comparacion) is dict and len(comparacion) > 0:
             return Restriccion(comparacion.keys()[0]
                            , comparacion.values()[0]
-                           , Restriccion._NO_IGUAL_
+                           , Restriccion.__IGUAL
                            )
 
         #si es una tupla con al menos dos elementos
-        if type(atributos) is tuple and len(atributos) > 1:
-            return Restriccion(atributos[0]
+        if type(atributos) in (list, tuple) and len(atributos) > 1:
+            if type(atributos[1]) is str:
+                return Restriccion(atributos[0]
                            , atributos[1]
-                           , Restriccion._NO_IGUAL_
+                           , Restriccion.__NO_IGUAL
                            , False
                            , False
                            )
 
-        #sino
-        raise Exception(Restriccion.NOMBRE_CLASE + '.Dif()'
-                            + ': Se debe especificar el atributo y el valor a comparar!'
-                            )
+            else:
+                return Restriccion(atributos[0]
+                               , atributos[1]
+                               , Restriccion.__NO_IGUAL
+                               , True
+                               , False
+                               )
 
 
     @staticmethod
@@ -255,21 +269,22 @@ class Restriccion(object):
         if type(comparacion) is dict and len(comparacion) > 0:
             return Restriccion(comparacion.keys()[0]
                            , comparacion.values()[0]
-                           , Restriccion._MAYOR_QUE_
+                           , Restriccion.__MAYOR_QUE
                            )
 
         #si es una tupla con al menos dos elementos
         if type(atributos) is tuple and len(atributos) > 1:
             return Restriccion(atributos[0]
                            , atributos[1]
-                           , Restriccion._MAYOR_QUE_
+                           , Restriccion.__MAYOR_QUE
                            , False
                            , False
                            )
 
         #sino
         raise Exception(Restriccion.NOMBRE_CLASE + '.May()'
-                            + ': Se debe especificar el atributo y el valor a comparar!'
+                            + ': Se debe especificar el atributo'
+                            + ' y el valor a comparar!'
                             )
 
 
@@ -288,21 +303,22 @@ class Restriccion(object):
         if type(comparacion) is dict and len(comparacion) > 0:
             return Restriccion(comparacion.keys()[0]
                            , comparacion.values()[0]
-                           , Restriccion._MENOR_QUE_
+                           , Restriccion.__MENOR_QUE
                            )
 
         #si es una tupla con al menos dos elementos
         if type(atributos) is tuple and len(atributos) > 1:
             return Restriccion(atributos[0]
                            , atributos[1]
-                           , Restriccion._MENOR_QUE_
+                           , Restriccion.__MENOR_QUE
                            , False
                            , False
                            )
 
         #sino
         raise Exception(Restriccion.NOMBRE_CLASE + '.Men()'
-                            + ': Se debe especificar el atributo y el valor a comparar!'
+                            + ': Se debe especificar el atributo'
+                            + ' y el valor a comparar!'
                             )
 
     @staticmethod
@@ -320,21 +336,22 @@ class Restriccion(object):
         if type(comparacion) is dict and len(comparacion) > 0:
             return Restriccion(comparacion.keys()[0]
                            , comparacion.values()[0]
-                           , Restriccion._MAYOR_O_IGUAL_QUE_
+                           , Restriccion.__MAYOR_O_IGUAL_QUE
                            )
 
         #si es una tupla con al menos dos elementos
         if type(atributos) is tuple and len(atributos) > 1:
             return Restriccion(atributos[0]
                            , atributos[1]
-                           , Restriccion._MAYOR_O_IGUAL_QUE_
+                           , Restriccion.__MAYOR_O_IGUAL_QUE
                            , False
                            , False
                            )
 
         #sino
         raise Exception(Restriccion.NOMBRE_CLASE + '.MayIg()'
-                            + ': Se debe especificar el atributo y el valor a comparar!'
+                            + ': Se debe especificar el atributo'
+                            + ' y el valor a comparar!'
                             )
 
 
@@ -353,21 +370,22 @@ class Restriccion(object):
         if type(comparacion) is dict and len(comparacion) > 0:
             return Restriccion(comparacion.keys()[0]
                            , comparacion.values()[0]
-                           , Restriccion._MENOR_O_IGUAL_QUE_
+                           , Restriccion.__MENOR_O_IGUAL_QUE
                            )
 
         #si es una tupla con al menos dos elementos
         if type(atributos) is tuple and len(atributos) > 1:
             return Restriccion(atributos[0]
                            , atributos[1]
-                           , Restriccion._MENOR_O_IGUAL_QUE_
+                           , Restriccion.__MENOR_O_IGUAL_QUE
                            , False
                            , False
                            )
 
         #sino
         raise Exception(Restriccion.NOMBRE_CLASE + '.MenIg()'
-                            + ': Se debe especificar el atributo y el valor a comparar!'
+                            + ': Se debe especificar el atributo'
+                            + ' y el valor a comparar!'
                             )
 
 
@@ -384,12 +402,13 @@ class Restriccion(object):
         if type(comparacion) is not dict \
             or type(comparacion.values().pop()) not in (list, tuple):
             raise Exception(Restriccion.NOMBRE_CLASE + '.Entre()'
-                            + ': Se debe especificar el atributo y los valores limites!'
+                            + ': Se debe especificar el atributo'
+                            + ' y los valores limites!'
                             )
 
         return Restriccion(comparacion.keys().pop()
                            , comparacion.values().pop()
-                           , Restriccion._ENTRE_
+                           , Restriccion.__ENTRE
                            )
 
 
@@ -408,7 +427,8 @@ class Restriccion(object):
 
         if type(lRestricciones) not in (list, tuple) or len(lRestricciones) < 2:
             raise Exception(Restriccion.NOMBRE_CLASE + '.Y()'
-                            + ': Se deben pasar al menos 2 instancias de Restriccion!'
+                            + ': Se deben pasar al menos 2 instancias'
+                            + ' de Restriccion!'
                             )
 
         else:
@@ -419,7 +439,7 @@ class Restriccion(object):
                             + ': Se deben ser instancias de Restriccion!'
                             )
 
-        return Restriccion(None, lRestricciones, Restriccion._Y_)
+        return Restriccion(None, lRestricciones, Restriccion.__Y)
 
 
     @staticmethod
@@ -439,7 +459,8 @@ class Restriccion(object):
             or len(lRestricciones) < 2:
 
             raise Exception(Restriccion.NOMBRE_CLASE + '.O()'
-                            + ': Se deben pasar al menos 2 instancias de Restriccion!'
+                            + ': Se deben pasar al menos 2 instancias'
+                            + ' de Restriccion!'
                             )
 
         else:
@@ -450,7 +471,7 @@ class Restriccion(object):
                             + ': Se deben ser instancias de Restriccion!'
                             )
 
-        return Restriccion(None, lRestricciones, Restriccion._O_)
+        return Restriccion(None, lRestricciones, Restriccion.__O)
 
 
     def __formatoValor(self, oValor):
@@ -464,11 +485,9 @@ class Restriccion(object):
         #si no se debe formatear, lo devolvemos tal cual
         if not self.__bFormatear: return oValor
 
-        if type(oValor) is str:
-            return "'" + oValor + "'"
+        if type(oValor) is str: return "'" + oValor + "'"
 
-        if type(oValor) in [float, int, long]:
-            return oValor
+        if type(oValor) in [float, int, long]: return oValor
 
         if type(oValor) is datetime.datetime:
             return oValor.strftime("'%Y-%m-%d %H:%M:%S'")

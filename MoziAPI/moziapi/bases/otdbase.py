@@ -18,6 +18,9 @@ class OTDBase(object):
     Clase base para modelo de tablas de bases de datos
     '''
 
+    __SELECT_BASE = 'SELECT %(campos)s FROM %(tabla)s AS %(alias)s '
+
+
     def __init__(self, cNombreTabla, **kwargs):
         '''
         Inicializador de la clase
@@ -28,30 +31,20 @@ class OTDBase(object):
 
         self.cNombreTabla = cNombreTabla
 
-        self._nId = 0
-        self._cDescripcion = ''
+        self.nId = 0
+        self.cDescripcion = ''
+
         self._dicAtributos = {v:k for k, v in self._dicCampos.iteritems()}
 
         if kwargs.has_key('cAlias'): self.__cAlias = str(kwargs.pop('cAlias'))
-
         else: self.__cAlias = '_this_'
 
         self._cListaCampos = None
         self._cSelect = None
+        self._lUniones = ()
 
-        # lo recorremos
-        for k in kwargs:
-            # asignamos los valores a los atributos correspondientes
-            self.__setattr__(self._dicCampos[k], kwargs[k])
-
-
-    def __str__(self):
-        '''
-        Devuelve la representacion de cadena
-        
-        '''
-
-        return '<%s - %s>' % (self._nId, self._cDescripcion)
+        #asignamos los valores a los atributos correspondientes
+        for k in kwargs: self.__setattr__(self._dicCampos[k], kwargs[k])
 
 
     def _getListaCampos(self):
@@ -62,21 +55,19 @@ class OTDBase(object):
         '''
 
         # si el atributo YA fue establecido, devolvemos la cadena de sentencia
-        if self._cListaCampos is not None: return self._cListaCampos
+        if self._cListaCampos: return self._cListaCampos
 
         # le asignamos su valor
         __cTemp = (', ' + self.alias + '.').join(self._dicCampos.keys())
-        __cTemp = self.__cAlias  + '.' + __cTemp 
-        self._cListaCampos = '%(campos)s' % {'campos': __cTemp}
+        self._cListaCampos = self.alias  + '.' + __cTemp
 
-        #devolvemos la sentecia
+        #devolvemos la sentencia
         return self._cListaCampos
 
 
-
+    def __str__(self): return '<%s - %s>' % (self._nId, self._cDescripcion)
     def __getAlias(self): return self.__cAlias
     def __setAlias(self, cAlias): self.__cAlias = cAlias
-
 
 
     def _getSelect(self):
@@ -86,23 +77,22 @@ class OTDBase(object):
         '''
 
         # si el atributo YA fue establecido, devolvemos la cadena de sentencia
-        if self._cSelect is not None: return self._cSelect
+        if self._cSelect: return self._cSelect
 
         # le asignamos su valor
-        self._cSelect = 'SELECT %(campos)s FROM %(tabla)s AS %(alias)s '
-        self._cSelect = self._cSelect % {'campos': self._getListaCampos()
-                                       , 'tabla':self.cNombreTabla
-                                       , 'alias':self.alias
-                                       }
+        self._cSelect = OTDBase.__SELECT_BASE % {'campos': self._getListaCampos()
+                                               , 'tabla':self.cNombreTabla
+                                               , 'alias':self.alias
+                                               }
 
-        #devolvemos la sentecia
+        #devolvemos la sentencia
         return self._cSelect
 
 
     def filtrar(self, oRestriccion):
         '''
         Devuelve la sentencia SELECT para la tabla administrada
-        agregando las restrincciones de filtrado de registros
+        agregando las restricciones de filtrado de registros
         
         oRestriccion = instancia de Restriccion o condicion SQL
             Ej. Restriccion.Ig(nombreAtributo = 15) o 'CAMPO = 15'
@@ -112,7 +102,9 @@ class OTDBase(object):
         # si se una instancia de Restriccion
         if type(oRestriccion) is Restriccion:
             # recuperamos las cadenas de condiciones
-            return self._getSelect() + (' WHERE %s' % oRestriccion.getCondiciones(self))
+            return self._getSelect() + (' WHERE %s'
+                                        % oRestriccion.getCondiciones(self)
+                                        )
 
         #si es una cadena
         elif type(oRestriccion) is str:
@@ -125,7 +117,7 @@ class OTDBase(object):
 
     def unir(self, oUnion):
         '''
-        Devuelve la sentencia SELECT para la tabla administrada
+        Prepara la sentencia SELECT para la tabla administrada
         agregando las uniones con las instancias indicadas en el parametro
         
         oUnion = instancia de Union
@@ -135,9 +127,18 @@ class OTDBase(object):
 
         # si se recibe el diccionario parametro
         if type(oUnion) is Union:
-            oUnion.setUniones(self)
-            self._cSelect = self.select + oUnion.union
+            #agregamos la nueva union a las existentes
+            self._lUniones += (oUnion,)
 
+            #configuramos las uniones
+            for u in self._lUniones: u.setUniones(self)
+
+            #formamos las clausulas
+            for u in self._lUniones: self._cSelect = self.select + u.union
+
+        else:
+            #sino, excepcion
+            raise Exception('Se esperaba una instancia de Union!')
 
 
     alias = property(fget=__getAlias, fset= __setAlias

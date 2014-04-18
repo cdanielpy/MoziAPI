@@ -24,11 +24,11 @@ class Employee(OTDBase):
 
     # mapeo de nombres de campos de la tabla a atributos de la clase
     _dicCampos = {'emp_no':'_nId'
-                   , 'first_name':'_cNombre'
-                   , 'last_name':'_cApellido'
-                   , 'gender':'_cGenero'
-                   , 'hire_date':'_dFechaIngreso'
-                   , 'birth_date':'_dCumpleanos'
+                   , 'first_name':'cNombre'
+                   , 'last_name':'cApellido'
+                   , 'gender':'cGenero'
+                   , 'hire_date':'dFechaIngreso'
+                   , 'birth_date':'dCumpleanos'
                 }
 
 
@@ -41,16 +41,16 @@ class Employee(OTDBase):
         '''
 
         # valores por defecto para atributos
-        self._cNombre = ''
-        self._cApellido = ''
-        self._cGenero = None
-        self._dFechaIngreso = None
-        self._dCumpleanos = None
+        self.cNombre = ''
+        self.cApellido = ''
+        self.cGenero = None
+        self.dFechaIngreso = None
+        self.dCumpleanos = None
 
         # invocamos al inicializador de la clase base
         super(Employee, self).__init__('employees', **parametros)
 
-        self._cDescripcion = self._cNombre + ' ' + self._cApellido
+        self.cDescripcion = self.cNombre + ' ' + self.cApellido
 
 
 
@@ -81,19 +81,19 @@ class Department(OTDBase):
 
 
 
-class DepEmp(OTDBase):
+class DeptEmp(OTDBase):
     '''
     Clase para datos de la tabla [dept_emp]
     '''
 
 
-    NOMBRE_CLASE = 'DepEmp'
+    NOMBRE_CLASE = 'DeptEmp'
 
     # mapeo de nombres de campos de la tabla a atributos de la clase
-    _dicCampos = {'emp_no':'_nEmployeeId'
-                   , 'dept_no':'_cDepartmentId'
-                   , 'from_date': '_dDesde'
-                   , 'to_date':'_dHasta'
+    _dicCampos = {'emp_no':'nEmployeeId'
+                   , 'dept_no':'cDepartmentId'
+                   , 'from_date': 'dDesde'
+                   , 'to_date':'dHasta'
                 }
 
 
@@ -106,10 +106,10 @@ class DepEmp(OTDBase):
         '''
 
         # valores por defecto para atributos
-        self._nEmployeeId = 0
-        self._cDepartmentId = ''
-        self._dDesde = None
-        self._dHasta = None
+        self.nEmployeeId = 0
+        self.cDepartmentId = ''
+        self.dDesde = None
+        self.dHasta = None
 
         # invocamos al inicializador de la clase base
-        super(DepEmp, self).__init__('dept_emp', **parametros)
+        super(DeptEmp, self).__init__('dept_emp', **parametros)

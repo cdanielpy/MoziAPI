@@ -12,6 +12,7 @@ Created on 13/04/2014
         descargable desde la pagina de la misma mysql
         en el siguiente enlace
         http://dev.mysql.com/downloads/connector/python/1.1.html
+        
 '''
 
 
@@ -70,14 +71,14 @@ class MySqlUtiles(ConectorBase):
     def lConectar(self):
         '''
         Ejecuta un intento de conexion al motod de base de datos y devuelve
-        una lista de resultados [int, string]
+        una lista de resultados (int, string)
         
         '''
 
         NOMBRE_METODO = self.NOMBRE_CLASE + '.lConectar()'
 
         # resultado por defecto
-        lResultado = [0, NOMBRE_METODO + ' No Ejecutado!']
+        lResultado = (0, NOMBRE_METODO + ' No Ejecutado!')
 
         try:
             # intentamos iniciar la conexion
@@ -90,14 +91,14 @@ class MySqlUtiles(ConectorBase):
                                               )
 
             # establecemos el resultado del metodo
-            lResultado = [1, 'Ok']
+            lResultado = (1, 'Ok')
 
             # establecemos el marcador de conexion activa
             self._bConectado = True
 
         except BaseException, oError:
             # en caso de error, devolvemos el error como parte del resultado
-            lResultado = [-1, NOMBRE_METODO + ' Error: ' + str(oError)]
+            lResultado = (-1, NOMBRE_METODO + ' Error: ' + str(oError))
 
         # devolvemos el resultado del metodo
         return lResultado
@@ -106,27 +107,27 @@ class MySqlUtiles(ConectorBase):
     def lDesconectar(self):
         '''
         Ejecuta la llamada al metodo de finalizacion de la conexion existente
-        y devuelve una lista de resultados [int, string]
+        y devuelve una lista de resultados (int, string)
         '''
 
         NOMBRE_METODO = self.NOMBRE_CLASE + '.lDesconectar()'
 
         # resultado por defecto
-        lResultado = [0, NOMBRE_METODO + ' No Ejecutado!']
+        lResultado = (0, NOMBRE_METODO + ' No Ejecutado!')
 
         try:
             # intentamos iniciar la conexion
             self._oConexion.close()
 
             # establecemos el resultado del metodo
-            lResultado = [1, 'Ok']
+            lResultado = (1, 'Ok')
 
             # establecemos el marcador de conexion cerrada
             self._bConectado = False
 
         except BaseException, oError:
             # en caso de error, devolvemos el error como parte del resultado
-            lResultado = [-1, NOMBRE_METODO + ' Error: ' + str(oError)]
+            lResultado = (-1, NOMBRE_METODO + ' Error: ' + str(oError))
 
         # devolvemos el resultado del metodo
         return lResultado
@@ -135,24 +136,24 @@ class MySqlUtiles(ConectorBase):
     def lConfirmar(self):
         '''
         Ejecuta la llamada al metodo de confirmacion de una transaccion
-        exitentes y devuelve una lista de resultados [int, string]
+        exitentes y devuelve una lista de resultados (int, string)
         '''
 
         NOMBRE_METODO = self.NOMBRE_CLASE + '.lConfirmar()'
 
         # resultado por defecto
-        lResultado = [0, NOMBRE_METODO + ' No Ejecutado!']
+        lResultado = (0, NOMBRE_METODO + ' No Ejecutado!')
 
         try:
             # intentamos confirmar la transaccion
             self._oConexion.commit()
 
             # establecemos el resultado del metodo
-            lResultado = [1, 'Ok']
+            lResultado = (1, 'Ok')
 
         except BaseException, oError:
             # en caso de error, devolvemos el error como parte del resultado
-            lResultado = [-1, NOMBRE_METODO + ' Error: ' + str(oError)]
+            lResultado = (-1, NOMBRE_METODO + ' Error: ' + str(oError))
 
         # devolvemos el resultado del metodo
         return lResultado
@@ -161,24 +162,24 @@ class MySqlUtiles(ConectorBase):
     def lRevertir(self):
         '''
         Ejecuta la llamada al metodo de reversion de una transaccion
-        exitentes y devuelve una lista de resultados [int, string]
+        exitentes y devuelve una lista de resultados (int, string)
         '''
 
         NOMBRE_METODO = self.NOMBRE_CLASE + '.lRevertir()'
 
         # resultado por defecto
-        lResultado = [0, NOMBRE_METODO + ' No Ejecutado!']
+        lResultado = (0, NOMBRE_METODO + ' No Ejecutado!')
 
         try:
             # intentamos revertir la transaccion
             self._oConexion.rollback()
 
             # establecemos el resultado del metodo
-            lResultado = [1, 'Ok']
+            lResultado = (1, 'Ok')
 
         except BaseException, oError:
             # en caso de error, devolvemos el error como parte del resultado
-            lResultado = [-1, NOMBRE_METODO + ' Error: ' + str(oError)]
+            lResultado = (-1, NOMBRE_METODO + ' Error: ' + str(oError))
 
         # devolvemos el resultado del metodo
         return lResultado
@@ -188,7 +189,10 @@ class MySqlUtiles(ConectorBase):
         '''
         Ejecuta la preparacion de ejecucion de una consulta
         mediante una instancia de Cursor y devuelve una lista
-        de resultados [int, object]
+        de resultados (int, object)
+        
+        Si se ejecuto correctamente, el segundo elemento de la lista
+        es la instancia de Cursor
         
         cConsultaSQL = Consulta SQL a ejecutar
         tParametros  = Valores de parametros de la Consulta
@@ -198,7 +202,7 @@ class MySqlUtiles(ConectorBase):
         NOMBRE_METODO = self.NOMBRE_CLASE + '.lEjecutarConsulta()'
 
         # resultado por defecto
-        lResultado = [0, NOMBRE_METODO + ' No Ejecutado!']
+        lResultado = (0, NOMBRE_METODO + ' No Ejecutado!')
 
         try:
             # intentamos instanciar un cursor
@@ -214,11 +218,11 @@ class MySqlUtiles(ConectorBase):
                 oCursor.execute(cConsultaSQL)
 
             # establecemos el resultado del metodo
-            lResultado = [1, oCursor]
+            lResultado = (1, oCursor)
 
         except BaseException, oError:
             # en caso de error, devolvemos el error como parte del resultado
-            lResultado = [-1, NOMBRE_METODO + ' Error: ' + str(oError)]
+            lResultado = (-1, NOMBRE_METODO + ' Error: ' + str(oError))
 
         # devolvemos el resultado del metodo
         return lResultado
@@ -227,7 +231,7 @@ class MySqlUtiles(ConectorBase):
     def lEjecutarSentencia(self, cSentenciaSQL, tParametros=None):
         '''
         Ejecuta una sentencia sql y devuelve una lista
-        de resultados [int, string]
+        de resultados (int, string)
         
         cConsultaSQL = Sentencia SQL a ejecutar
         tParametros  = Valores de parametros de la Sentencia
@@ -237,31 +241,30 @@ class MySqlUtiles(ConectorBase):
         NOMBRE_METODO = self.NOMBRE_CLASE + '.lEjecutarSentencia()'
 
         # resultado por defecto
-        lResultado = [0, NOMBRE_METODO + ' No Ejecutado!']
+        lResultado = (0, NOMBRE_METODO + ' No Ejecutado!')
 
         try:
             # intentamos instanciar un cursor
             oCursor = self._oConexion.cursor()
 
-            
-
             # ejecutamos la consulta
             if tParametros is not None:
                 self._mostrarComando(cSentenciaSQL % tParametros)
                 oCursor.execute(cSentenciaSQL, tParametros)
+
             else:
                 self._mostrarComando(cSentenciaSQL)
                 oCursor.execute(cSentenciaSQL)
 
             # establecemos el resultado del metodo
-            lResultado = [1, 'Ok']
+            lResultado = (1, 'Ok')
 
             # cerramos el cursor
             oCursor.close()
 
         except BaseException, oError:
             # en caso de error, devolvemos el error como parte del resultado
-            lResultado = [-1, NOMBRE_METODO + ' Error: ' + str(oError)]
+            lResultado = (-1, NOMBRE_METODO + ' Error: ' + str(oError))
 
         # devolvemos el resultado del metodo
         return lResultado
