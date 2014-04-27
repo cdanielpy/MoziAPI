@@ -16,9 +16,12 @@ from moziapi.uniones.union import Union
 class OTDBase(object):
     '''
     Clase base para modelo de tablas de bases de datos
+    
     '''
 
     __SELECT_BASE = 'SELECT %(campos)s FROM %(tabla)s AS %(alias)s '
+
+    __oConexion = {0:None}
 
 
     def __init__(self, cNombreTabla, **kwargs):
@@ -29,6 +32,10 @@ class OTDBase(object):
         
         '''
 
+        self._cListaCampos = None
+        self._cSelect = None
+        self._lUniones = ()
+
         self.cNombreTabla = cNombreTabla
 
         self.nId = 0
@@ -38,10 +45,6 @@ class OTDBase(object):
 
         if kwargs.has_key('cAlias'): self.__cAlias = str(kwargs.pop('cAlias'))
         else: self.__cAlias = '_this_'
-
-        self._cListaCampos = None
-        self._cSelect = None
-        self._lUniones = ()
 
         #asignamos los valores a los atributos correspondientes
         for k in kwargs: self.__setattr__(self._dicCampos[k], kwargs[k])
@@ -65,7 +68,11 @@ class OTDBase(object):
         return self._cListaCampos
 
 
-    def __str__(self): return '<%s - %s>' % (self._nId, self._cDescripcion)
+    def __str__(self): return '<%s - %s>' % (self.nId, self.cDescripcion)
+
+    def __getConexion(self): return self.__oConexion[0]
+    def __setConexion(self, oConexion): self.__oConexion[0] = oConexion
+
     def __getAlias(self): return self.__cAlias
     def __setAlias(self, cAlias): self.__cAlias = cAlias
 
@@ -140,6 +147,10 @@ class OTDBase(object):
             #sino, excepcion
             raise Exception('Se esperaba una instancia de Union!')
 
+
+    conexion = property(fget=__getConexion, fset=__setConexion
+                      , doc='Devuelve la conexion actual utilizada'
+                      )
 
     alias = property(fget=__getAlias, fset= __setAlias
                      , doc='Devuelve o establece el alias SQL asignado a la tabla'

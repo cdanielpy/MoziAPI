@@ -88,6 +88,7 @@ class MySqlUtiles(ConectorBase):
                                               , database=self._cCatalogo
                                               , port=self._nPuerto
                                               , pool_size=self._nMaxPool
+                                              , buffered = True
                                               )
 
             # establecemos el resultado del metodo

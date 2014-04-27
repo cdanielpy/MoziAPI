@@ -485,9 +485,9 @@ class Restriccion(object):
         #si no se debe formatear, lo devolvemos tal cual
         if not self.__bFormatear: return oValor
 
-        if type(oValor) is str: return "'" + oValor + "'"
+        if type(oValor) in (str, unicode): return "'" + oValor + "'"
 
-        if type(oValor) in [float, int, long]: return oValor
+        if type(oValor) in (float, int, long): return oValor
 
         if type(oValor) is datetime.datetime:
             return oValor.strftime("'%Y-%m-%d %H:%M:%S'")

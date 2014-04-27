@@ -7,6 +7,7 @@ Created on 09/04/2014
 @summary: Clase base para utilerias de conexion a motores de bases de datos
 '''
 
+
 class ConectorBase(object):
     '''
     Clase base para utilerias de conexion a motores de bases de datos
@@ -49,6 +50,32 @@ class ConectorBase(object):
         raise NotImplementedError
 
 
+    def lRecuperar(self, clsClaseOTD, oRestricciones):
+        '''
+        Ejecuta la consulta de datos aplicando las restricciones indicadas
+        y devolviendo un generador de instancias de la clase especificada
+        
+        clsClaseOTD    = clase derivada de OTDBase
+        oRestricciones = instancia de Restriccion
+        
+        '''
+
+        #establecemos la conexion interna actual de la clase
+        clsClaseOTD.conexion = self
+
+        #generamos un cursor con los datos de peticiones
+        lRes = self.lEjecutarConsulta(clsClaseOTD().filtrar(oRestricciones))
+
+        #si no se pudo ejecutar
+        if lRes[0] != 1: raise Exception(lRes[1])
+
+        #tomamos los nombres de campos de la tabla
+        tCampos = (clsClaseOTD()._dicCampos.keys())
+
+        #devolvemos un generador
+        return (clsClaseOTD(**dict(zip(tCampos, tFila))) for tFila in lRes[1])
+
+
     def lEjecutarConsulta(self, cConsultaSQL, tParametros):
         raise NotImplementedError
 
@@ -71,10 +98,11 @@ class ConectorBase(object):
         
         '''
 
-        return '<%s %s %s>' % (self.NOMBRE_CLASE
-                               , self._cServidor
-                               , self._cServicio
-                               )
+        return '<%s %s@%s/%s>' % (self.NOMBRE_CLASE
+                                   , self._cUsuario
+                                   , self._cServidor
+                                   , self._cServicio
+                                   )
 
 
     def _mostrarComando(self, cComando):
