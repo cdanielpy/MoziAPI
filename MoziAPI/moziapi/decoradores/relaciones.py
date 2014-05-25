@@ -13,7 +13,7 @@ from moziapi.restricciones import Restriccion
 
 class Uno_a_Muchos(object):
     '''
-    Clase decoradora de metodos de relacion (1 - N) entre Clases OTD
+    Clase decoradora de metodos de relacion (1 - N) entre instancias de OTDBase
     
     '''
 
@@ -61,7 +61,7 @@ class Uno_a_Muchos(object):
 
 class Muchos_a_Uno(object):
     '''
-    Clase decoradora de metodos de relacion (N - 1) entre Clases OTD
+    Clase decoradora de metodos de relacion (N - 1) entre instancias OTDBase
     
     '''
 

@@ -26,6 +26,7 @@ from moziapi.bases import ConectorBase
 class MySqlUtiles(ConectorBase):
     '''
     Clase de administración de conexion a un motor MySQL
+    
     '''
 
     NOMBRE_CLASE = 'MySqlUtiles'
@@ -109,6 +110,7 @@ class MySqlUtiles(ConectorBase):
         '''
         Ejecuta la llamada al metodo de finalizacion de la conexion existente
         y devuelve una lista de resultados (int, string)
+        
         '''
 
         NOMBRE_METODO = self.NOMBRE_CLASE + '.lDesconectar()'
@@ -138,6 +140,7 @@ class MySqlUtiles(ConectorBase):
         '''
         Ejecuta la llamada al metodo de confirmacion de una transaccion
         exitentes y devuelve una lista de resultados (int, string)
+        
         '''
 
         NOMBRE_METODO = self.NOMBRE_CLASE + '.lConfirmar()'
@@ -164,6 +167,7 @@ class MySqlUtiles(ConectorBase):
         '''
         Ejecuta la llamada al metodo de reversion de una transaccion
         exitentes y devuelve una lista de resultados (int, string)
+        
         '''
 
         NOMBRE_METODO = self.NOMBRE_CLASE + '.lRevertir()'
@@ -271,25 +275,3 @@ class MySqlUtiles(ConectorBase):
         return lResultado
 
 
-    def conectado(self):
-        '''
-        Devuelve True si la conexion esta actualmente abierta
-        
-        No confiable: se basa en el valor de un atributo de esta instancia
-        , no monitorea el estado de la conexion
-        
-        '''
-
-        # establecemos el marcador de conexion activa
-        self._bConectado = True
-
-
-    def mostrarSQL(self, bValor):
-        '''
-        Establece si se muestran o no las sentencias ejecutadas
-        
-        bValor = [True|False]
-        
-        '''
-
-        self._bMostrarSql = bValor

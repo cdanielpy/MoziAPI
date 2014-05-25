@@ -5,21 +5,24 @@ Created on 09/04/2014
 @author: cgaray
 @contact: cdaniel.py@gmail.com
 @summary: Clase base para utilerias de conexion a motores de bases de datos
+
 '''
 
 
 class ConectorBase(object):
     '''
     Clase base para utilerias de conexion a motores de bases de datos
+    
     '''
 
 
     def __init__(self):
         '''
         Inicializador de la clase
+        
         '''
 
-        self.__oConexion = None
+        self._oConexion = None
 
         self._cServidor = ''
         self._nPuerto = 0
@@ -50,7 +53,7 @@ class ConectorBase(object):
         raise NotImplementedError
 
 
-    def lRecuperar(self, clsClaseOTD, oRestricciones):
+    def gRecuperar(self, clsClaseOTD, oRestricciones):
         '''
         Ejecuta la consulta de datos aplicando las restricciones indicadas
         y devolviendo un generador de instancias de la clase especificada
@@ -82,15 +85,21 @@ class ConectorBase(object):
     def lEjecutarSentencia(self, cSentenciaSQL, tParametros):
         raise NotImplementedError
 
-
-    def lEjecutarProcedimiento(self, cConsultaSQL, tParametros):
+    def lEjecutarProcedimiento(self, cComandoSQL, tParametros):
         raise NotImplementedError
 
     def bConectado(self):
         raise NotImplementedError
 
-    def mostrarSQL(self):
-        raise NotImplementedError
+    def mostrarSQL(self, bValor):
+        '''
+        Establece si se muestran o no las sentencias ejecutadas
+        
+        bValor = [True|False]
+        
+        '''
+
+        self._bMostrarSql = bValor
 
     def __str__(self):
         '''

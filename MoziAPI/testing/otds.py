@@ -135,5 +135,5 @@ class Employee(OTDBase):
 
 
     DeptEmps = property(fget=__getDeptEmp,
-                        doc='Devuelve la lista de instancias de DeptEmp asociadas'
-                        )
+                    doc='Devuelve la lista de instancias de DeptEmp asociadas'
+                    )

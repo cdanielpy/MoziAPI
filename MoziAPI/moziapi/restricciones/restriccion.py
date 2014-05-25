@@ -132,7 +132,8 @@ class Restriccion(object):
         elif self.__cOperador in [Restriccion.__Y, Restriccion.__O]:
 
             if self.__bModoAtributos:
-                return self.__cOperador.join(' (' + r.getCondiciones(oOTD) + ') ' for r in self.__oValor)
+                return self.__cOperador.join(' (' + r.getCondiciones(oOTD) + ') '
+                                             for r in self.__oValor)
 
             else:
                 return self.__cSql.replace('@' + self.__cAtributo + '@'

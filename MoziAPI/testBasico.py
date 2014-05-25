@@ -42,7 +42,7 @@ if __name__ == '__main__':
     # si no se conecto
     if lResultado[0] != 1: raise Exception(lResultado[1])
 
-    oConexion._bMostrarSql = False
+    oConexion.mostrarSQL(True)
 
 ########################################################################
 #   EJECUCION DIRECTA, RECUPERACION DE TUPLAS Y CREACION DE INSTANCIAS
@@ -53,9 +53,6 @@ if __name__ == '__main__':
 
     #filtro simple
     #cSentencia = Employee().filtrar(Restriccion.Ig(nId = 10008))
-
-    #filtro por rango de valores
-    #cSentencia = Employee().filtrar(Restriccion.Entre(nId=[10008, 10015]))
 
     #restricciones via sql nativo
     #===========================================================================
@@ -76,19 +73,22 @@ if __name__ == '__main__':
 #     cSentencia = emp.filtrar(oRest_Y)
 #===============================================================================
 
- #==============================================================================
- #    #ejecutamos la consulta
- #    lResultado = oConexion.lEjecutarConsulta(cSentencia)
- # 
- #    if lResultado[0] != 1: raise Exception(lResultado[1])
- # 
- #    #recuperamos los campos de la clase
- #    lCampos = Employee()._dicCampos.keys()
- # 
- #    #recorremos las filas devueltas, instanciamos la clase correspondiente
- #    #e imprimimos su representacion
- #    for fila in lResultado[1]: print Employee(**dict(zip(lCampos, fila)))
- #==============================================================================
+
+    #filtro por rango de valores
+    cSentencia = Employee().filtrar(Restriccion.Entre(nId=[10008, 10015]))
+
+    #ejecutamos la consulta
+    lResultado = oConexion.lEjecutarConsulta(cSentencia)
+ 
+    if lResultado[0] != 1: raise Exception(lResultado[1])
+ 
+    #recuperamos los campos de la clase
+    lCampos = Employee()._dicCampos.keys()
+ 
+    #recorremos las filas devueltas, instanciamos la clase correspondiente
+    #e imprimimos su representacion
+    print type(lResultado[1])
+    for fila in lResultado[1]: print Employee(**dict(zip(lCampos, fila)))
 
 
 
@@ -96,15 +96,17 @@ if __name__ == '__main__':
 #   EJECUCION INDIRECTA, RECUPERACION DE INSTANCIAS
 ########################################################################
 
-    #ejecutamos la recuperacion de instancias a travez de un generador
-    gen = oConexion.lRecuperar(Employee, Restriccion.Entre(nId=[10070, 10090]))
-
-    #recorremos el generador e imprimimos su representacion
-    for emp in gen:
-        print emp           #la instancia en si
-        #listamos el historial de departammentos del empleado
-        for deptEmp in emp.DeptEmps:
-            print deptEmp,
-            print deptEmp.Department #los datos del Departamento
+#===============================================================================
+#     #ejecutamos la recuperacion de instancias a traves de un generador
+#     gen = oConexion.gRecuperar(Employee, Restriccion.Entre(nId=[10070, 10090]))
+# 
+#     #recorremos el generador e imprimimos su representacion
+#     for emp in gen:
+#         print emp           #la instancia en si
+#         #listamos el historial de departammentos del empleado
+#         for deptEmp in emp.DeptEmps:
+#             print deptEmp,
+#             print deptEmp.Department #los datos del Departamento
+#===============================================================================
 
 
