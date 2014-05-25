@@ -6,7 +6,7 @@ Utilería prototipo de administración de interacción Python - Base de Datos.-
 ##  Componentes
 A continuación se describe cada clase del proyecto y sus funciones dentro del mismo.-
 
-### ConectorBase
+### [ConectorBase](https://github.com/cdanielpy/MoziAPI/wiki/ConectorBase)
 _Clase base para utilerías de conexión a motores de bases de datos._
 
 La finalidad de esta clase es estandarizar los métodos de ejecución de comandos contra los diferentes motores de base de datos, un nivel por encima de [DB-API](http://legacy.python.org/dev/peps/pep-0249/), valiéndose de los métodos implementados por los mismos módulos externos existentes para cada motor, como mysql, sql server, oracle, sqlite, etc.-
